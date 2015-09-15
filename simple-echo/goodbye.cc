@@ -78,7 +78,8 @@ main(int argc, char **argv)
     while ((client = accept(server,(struct sockaddr *)&client_addr,&clientlen)) > 0) {
 
           // loop to handle all requests
-        while (1) {
+        while (1) 
+        {
         
               // read a request
             memset(buf,0,buflen);
@@ -87,20 +88,21 @@ main(int argc, char **argv)
                 break;
 
             // send a response
-	    string hello = "hello\n";
+			string hello = "hello\n";
             string error = "error\n";
+            string goodbye = "goodbye my friend, it has been fun\n";
      
             if (buf == hello.c_str())
             {
-            send(client, buf, nread, 0);
-		printf("success\n");
+				send(client, buf, nread, 0);
+				printf("success\n");
             }
 
             else
-	    {
-		printf(buf);
-		send(client, buf, nread, 0);
-		send(client, error.c_str(), nread, 0);
+			{
+				//printf(buf);
+				//send(client, buf, nread, 0);
+				send(client, goodbye.c_str(), nread, 0);
             }
         }
         close(client);

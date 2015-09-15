@@ -69,7 +69,7 @@ main(int argc, char **argv)
     char* buf = new char[buflen+1];
 
     // read a line from standard input
-    string line = "hello\n";
+    string line = "hello my friend, how have you been since I saw you last?\n";
     //while (getline(cin,line)) {
     for (int i = 0; i < 10; i++) {
     
