@@ -10,6 +10,9 @@
 #include <unistd.h>
 
 #include <string>
+#include <sstream>
+#include "Message.h"
+#include <iostream>
 
 using namespace std;
 
@@ -27,6 +30,9 @@ protected:
     void handle(int);
     string get_request(int);
     bool send_response(int, string);
+
+    Message parse_request(string request);
+    void get_value(int client, Message message);
 
     int server_;
     int buflen_;

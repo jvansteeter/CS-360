@@ -49,6 +49,14 @@ Server::handle(int client) {
         // break if client is done or an error occurred
         if (request.empty())
             break;
+        // parse request
+        Message message = parse_request(request);
+        // Get more characters if needed
+        cout << "handling job";
+        if (0)//message.getNeeded())
+        {
+            //get_value(client, message);
+        }
         // send response
         bool success = send_response(client,request);
         // break if an error occurred
@@ -109,3 +117,18 @@ Server::send_response(int client, string response) {
     }
     return true;
 }
+
+Message Server::parse_request(string request)
+{
+    Message newMessage;
+    istringstream iss (request);
+
+    while(!iss.eof())
+    {
+        cout << iss.get();
+    }
+
+
+    return newMessage;
+}
+ 
