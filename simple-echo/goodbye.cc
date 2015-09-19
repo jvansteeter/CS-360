@@ -20,9 +20,11 @@ main(int argc, char **argv)
     char *buf;
     int buflen;
     int nread;
+    
+    cout << "Starting Server";
 
     // setup default arguments
-    port = 3000;
+    port = 3001;
 
     // process command line options using getopt()
     // see "man 3 getopt"
@@ -100,7 +102,7 @@ main(int argc, char **argv)
 
             else
 			{
-				//printf(buf);
+				printf(buf);
 				//send(client, buf, nread, 0);
 				send(client, goodbye.c_str(), nread, 0);
             }

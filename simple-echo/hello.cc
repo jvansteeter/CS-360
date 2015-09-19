@@ -85,6 +85,9 @@ main(int argc, char **argv)
         // print the response
         cout << buf << endl;
     }
+    
+    while(1)
+    {}
 
     // Close socket
     close(server);
