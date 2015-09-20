@@ -1,10 +1,11 @@
 #include "server.h"
 
-Server::Server(int port) {
+Server::Server(int port, bool d) {
     // setup variables
     port_ = port;
     buflen_ = 1024;
     buf_ = new char[buflen_+1];
+    debug =d;
 }
 
 Server::~Server() {
@@ -20,7 +21,8 @@ Server::run() {
 
 void
 Server::create() {
-    cout << "SERVER:: create()" << endl;
+    if (debug)
+        cout << "SERVER:: create()" << endl;
     struct sockaddr_in server_addr;
 
     // setup socket address structure
@@ -82,34 +84,33 @@ Server::handle(int client) {
     // loop to handle all requests
     while (1) 
     {
-        cout << "SERVER:: handle()" << endl;
+        if (debug)
+            cout << "SERVER:: handle()" << endl;
         // get a request
         string request = get_request(client);
         // break if client is done or an error occurred
         if (request.empty())
             break;
 
+        cout << request << endl;
+
+        /*
         Message message = parse_request(request);
-        cout << "SERVER:: finished parsing" << endl;
+        if (debug)
+            cout << "SERVER:: finished parsing" << endl;
 
         if (message.needed)
         {
-            cout << "SERVER:: needed is true" << endl;
             get_value(client,message);
-            cout << "SERVER:: finished get_value()" << endl;
         }
-        else
-            cout << "SERVER:: needed is false" << endl;
-        
-        proveHomework(message);
-
-        /* No response sent for HW 1
+       
         // send response
         bool success = send_response(client,request);
         // break if an error occurred
         if (not success)
             break;
-        */        
+        */
+              
     }
     close(client);
 }
@@ -120,7 +121,8 @@ Server::get_request(int client) {
     // read until we get a newline
     while (request.find("\n") == string::npos) 
     {
-        cout << "SERVER:: get_request()" << endl;
+        if (debug)
+            cout << "SERVER:: get_request()" << endl;
         int nread = recv(client,buf_,1024,0);
         if (nread < 0) {
             if (errno == EINTR)
@@ -171,7 +173,8 @@ Server::send_response(int client, string response) {
 Message 
 Server::parse_request(string request)
 {
-    cout << "SERVER:: parse_request()" << endl;
+    if (debug)
+        cout << "SERVER:: parse_request()" << endl;
     istringstream iss(request);
 
     Message message;
@@ -189,21 +192,25 @@ Server::parse_request(string request)
         if (count == 0)
         {
             message.command = output;
-            cout << "SERVER:: command=" << output << endl;
+            if (debug)
+                cout << "SERVER:: command=" << output << endl;
         }
         else if (count == 1)
         {
             message.params[0] = output;
-            cout << "SERVER:: params[0]=" << output << endl;
+            if (debug)
+                cout << "SERVER:: params[0]=" << output << endl;
         }
         else if (count == 2)
         {
             message.value = output;
-            cout << "SERVER:: value=" << output << endl;
+            if (debug)
+                cout << "SERVER:: value=" << output << endl;
         }
         else
         {
-            cout << "SERVER:: CACHING" << endl;
+            if (debug)
+                cout << "SERVER:: CACHING" << endl;
             stringstream cache;
             while (!iss.eof())
             {
@@ -223,30 +230,11 @@ Server::parse_request(string request)
         message.needed = true;
     }
 
-    //request = "Grab the monkey!";
-
     return message;
 }
 
 void Server::get_value(int client, Message message)
 {
-    cout << "SERVER:: get_value()" << endl;
-}
-
-void Server::proveHomework(Message message)
-{
-    if (message.command == "store" 
-        && message.params[0] != ""
-        && message.value != "")
-    {
-        cout << "Stored a file called " 
-        << message.params[0] 
-        << " with " 
-        << message.value 
-        << " bytes." << endl;
-    }
-    else
-    {
-        cout << "ERROR:: incorrect syntax" << endl;
-    }
+    if (debug)
+        cout << "SERVER:: get_value()" << endl;
 }

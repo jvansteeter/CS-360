@@ -12,12 +12,13 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 using namespace std;
 
 class Client {
 public:
-    Client(string host, int port);
+    Client(string host, int port, bool debug);
     ~Client();
 
     void run();
@@ -25,13 +26,18 @@ public:
 private:
     virtual void create();
     virtual void close_socket();
-    void echo();
+    void protocol();
     bool send_request(string);
     bool get_response();
+    string parse_command(string command);
+    void sendCommand(string user, string subject);
+    void listCommand(string user);
+    void readCommand(string user, int index);
 
     string host_;
     int port_;
     int server_;
     int buflen_;
     char* buf_;
+    bool debug;
 };

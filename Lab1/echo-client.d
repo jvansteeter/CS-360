@@ -96,4 +96,5 @@ echo-client.o echo-client.d : echo-client.cc /usr/include/stdc-predef.h \
  /usr/include/c++/5.1.1/bits/codecvt.h /usr/include/c++/5.1.1/cstdio \
  /usr/include/c++/5.1.1/x86_64-redhat-linux/bits/basic_file.h \
  /usr/include/c++/5.1.1/x86_64-redhat-linux/bits/c++io.h \
- /usr/include/c++/5.1.1/bits/fstream.tcc
+ /usr/include/c++/5.1.1/bits/fstream.tcc /usr/include/c++/5.1.1/sstream \
+ /usr/include/c++/5.1.1/bits/sstream.tcc

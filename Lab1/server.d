@@ -94,4 +94,12 @@ server.o server.d : server.cc /usr/include/stdc-predef.h server.h \
  /usr/include/c++/5.1.1/bits/ostream.tcc \
  /usr/include/c++/5.1.1/bits/istream.tcc \
  /usr/include/c++/5.1.1/bits/sstream.tcc /usr/include/c++/5.1.1/iostream \
- Message.h
+ Message.h /usr/include/c++/5.1.1/map \
+ /usr/include/c++/5.1.1/bits/stl_tree.h \
+ /usr/include/c++/5.1.1/bits/stl_map.h \
+ /usr/include/c++/5.1.1/bits/stl_multimap.h /usr/include/c++/5.1.1/vector \
+ /usr/include/c++/5.1.1/bits/stl_construct.h \
+ /usr/include/c++/5.1.1/bits/stl_uninitialized.h \
+ /usr/include/c++/5.1.1/bits/stl_vector.h \
+ /usr/include/c++/5.1.1/bits/stl_bvector.h \
+ /usr/include/c++/5.1.1/bits/vector.tcc

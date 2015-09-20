@@ -1,11 +1,12 @@
 #include "client.h"
 
-Client::Client(string host, int port) {
+Client::Client(string host, int port, bool d) {
     // setup variables
     host_ = host;
     port_ = port;
     buflen_ = 1024;
     buf_ = new char[buflen_+1];
+    debug = d;
 }
 
 Client::~Client() {
@@ -14,7 +15,7 @@ Client::~Client() {
 void Client::run() {
     // connect to the server and run echo program
     create();
-    echo();
+    protocol();
 }
 
 void
@@ -55,26 +56,36 @@ Client::close_socket() {
 }
 
 void
-Client::echo() {
+Client::protocol() {
     string line;
+    bool running = true;
     
     // loop to handle user interface
-    while (getline(cin,line)) {
+    while (running) 
+    {
+        // mark the consol
+        cout << "% ";
+        getline(cin, line);
+        // parse the command
+        string command = parse_command(line);
         // append a newline
-        line += "\n";
+        //line += "\n";
+
+        /*
         // send request
         bool success = send_request(line);
         // break if an error occurred
         if (not success)
             break;
-        // get a response
 
-        /* Not getting a response in HW I/O
+        // get a response
         success = get_response();
         // break if an error occurred
         if (not success)
             break;
         */
+        if (command == "quit")
+            running = false;
     }
     close_socket();
 }
@@ -128,6 +139,122 @@ Client::get_response() {
     }
     // a better client would cut off anything after the newline and
     // save it in a cache
-    cout << response;
+    if (debug)
+        cout << response;
     return true;
+}
+
+string Client::parse_command(string command)
+{
+    if(debug)
+        cout << "CLIENT:: parse_command()" << endl;
+
+    istringstream iss(command);
+    bool error = false;
+    while(!iss.eof())
+    {
+        string argument;
+        getline(iss, argument, ' ');
+
+// Send command
+        if (argument == "send")
+        {
+            string user, subject;
+            getline(iss, user, ' ');
+            getline(iss, subject, ' ');
+
+            if (user.size() > 0)
+                sendCommand(user,subject);
+            else
+                error = true;
+
+            if(debug)
+                cout << "CLIENT:: sending message to "
+                    << user << " " << subject << endl;
+            return "send";
+        }
+
+// List Command
+        else if (argument == "list")
+        {
+
+            return "list";
+        }
+
+// Read Command
+        else if (argument == "read")
+        {
+
+            return "read";
+        }
+
+// Quit command
+        else if (argument == "quit")
+        {
+            return "quit";
+        }
+
+// The error case
+        else
+        {
+            error = true;
+        }
+
+        if (error)
+        {
+            cout << "ERROR:: incorrect syntax or command" << endl;
+            break;
+        }
+    }
+    return "error";
+}
+
+void Client::sendCommand(string user, string subject)
+{
+    if (debug)
+        cout << "CLIENT:: sendCommand()" << endl;
+
+    stringstream message;
+    cout << "- Type your message. End with a blank line -" << endl;
+
+    string line;
+    while(getline(cin, line))
+    {
+        if (line.size() > 0)
+        {
+            message << line << '\n';
+        }
+        else
+            break;
+    }
+
+    // compile protocol request
+    string message_string = message.str();
+    int message_size = message_string.size();
+    stringstream request; 
+    request << "put " << user << " " << subject 
+        << " " << message_size << "\n"
+        << message_string;
+
+    // send message
+     bool success = send_request(request.str());
+    // break if an error occurred
+    //if (not success)
+        //break;
+
+    // get a response
+    //success = get_response();
+    // break if an error occurred
+    //if (not success)
+        //sbreak;
+}
+
+void Client::listCommand(string user)
+{
+
+}
+
+void Client::readCommand(string user, int index)
+{
+
 }

@@ -14,11 +14,14 @@
 #include <iostream>
 #include "Message.h"
 
+#include <map>
+#include <vector>
+
 using namespace std;
 
 class Server {
 public:
-    Server(int port);
+    Server(int port, bool debug);
     ~Server();
 
     void run();
@@ -33,10 +36,12 @@ private:
 
     Message parse_request(string request);
     void get_value(int client, Message message);
-    void proveHomework(Message message);
-
+    
     int port_;
     int server_;
     int buflen_;
     char* buf_;
+    bool debug;
+
+    map<string,vector<map<string, string> > > data;
 };
