@@ -36,6 +36,7 @@ private:
 
     Message parse_request(string request);
     void get_value(int client, Message message);
+    string put_command(Message message);
     
     int port_;
     int server_;

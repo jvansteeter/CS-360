@@ -30,9 +30,9 @@ private:
     bool send_request(string);
     bool get_response();
     string parse_command(string command);
-    void sendCommand(string user, string subject);
-    void listCommand(string user);
-    void readCommand(string user, int index);
+    void send_command(string user, string subject);
+    void list_command(string user);
+    void read_command(string user, int index);
 
     string host_;
     int port_;

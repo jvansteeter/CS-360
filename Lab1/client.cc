@@ -77,13 +77,13 @@ Client::protocol() {
         // break if an error occurred
         if (not success)
             break;
-
+        */
         // get a response
-        success = get_response();
+        bool success = get_response();
         // break if an error occurred
         if (not success)
             break;
-        */
+        
         if (command == "quit")
             running = false;
     }
@@ -129,10 +129,10 @@ Client::get_response() {
                 continue;
             else
                 // an error occurred, so break out
-                return "";
+                return false;
         } else if (nread == 0) {
             // the socket is closed
-            return "";
+            return false;
         }
         // be sure to use append in case we have binary data
         response.append(buf_,nread);
@@ -164,7 +164,7 @@ string Client::parse_command(string command)
             getline(iss, subject, ' ');
 
             if (user.size() > 0)
-                sendCommand(user,subject);
+                send_command(user,subject);
             else
                 error = true;
 
@@ -209,7 +209,7 @@ string Client::parse_command(string command)
     return "error";
 }
 
-void Client::sendCommand(string user, string subject)
+void Client::send_command(string user, string subject)
 {
     if (debug)
         cout << "CLIENT:: sendCommand()" << endl;
@@ -249,12 +249,12 @@ void Client::sendCommand(string user, string subject)
         //sbreak;
 }
 
-void Client::listCommand(string user)
+void Client::list_command(string user)
 {
 
 }
 
-void Client::readCommand(string user, int index)
+void Client::read_command(string user, int index)
 {
 
 }

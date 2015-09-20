@@ -92,24 +92,30 @@ Server::handle(int client) {
         if (request.empty())
             break;
 
-        cout << request << endl;
+        if (debug)
+            cout << request << endl;
 
-        /*
         Message message = parse_request(request);
         if (debug)
             cout << "SERVER:: finished parsing" << endl;
 
+        // if more of the message is needed
         if (message.needed)
-        {
             get_value(client,message);
+        
+        // run the commands
+        bool success;
+        if (message.command == "put")
+        {
+            success = send_response(client,put_command(message));
         }
+
        
-        // send response
-        bool success = send_response(client,request);
+        
         // break if an error occurred
         if (not success)
             break;
-        */
+        
               
     }
     close(client);
@@ -176,58 +182,43 @@ Server::parse_request(string request)
     if (debug)
         cout << "SERVER:: parse_request()" << endl;
     istringstream iss(request);
-
     Message message;
-    message.command = "";
-    message.params[0] = "";
-    message.value = "";
-    message.needed = false;
-    int count = 0;
+
     while(!iss.eof())
     {
-        string output;
-        getline(iss, output, ' ');
-        cout << output << endl;
+        string arg;
+        getline(iss, arg, ' ');
 
-        if (count == 0)
+// Put command
+        if (arg == "put")
         {
-            message.command = output;
-            if (debug)
-                cout << "SERVER:: command=" << output << endl;
-        }
-        else if (count == 1)
-        {
-            message.params[0] = output;
-            if (debug)
-                cout << "SERVER:: params[0]=" << output << endl;
-        }
-        else if (count == 2)
-        {
-            message.value = output;
-            if (debug)
-                cout << "SERVER:: value=" << output << endl;
-        }
-        else
-        {
-            if (debug)
-                cout << "SERVER:: CACHING" << endl;
-            stringstream cache;
-            while (!iss.eof())
+            string name, subject, length, cache;
+            getline(iss, name, ' ');
+            getline(iss, subject, ' ');
+            getline(iss, length, ' ');
+            
+            stringstream ss;
+            while(!iss.eof())
             {
-                string leftovers;
-                getline(iss,leftovers);
-                cache << leftovers;
+                string line;
+                getline(iss,line);
+                ss << line << "\n";
             }
-            message.cache = cache.str();
-        }
+            string remainder = ss.str();
 
-        count++;
-    }
-    // message is parsed, determine if more is needed
-    int value = atoi(message.value.c_str());
-    if (value > message.cache.size())
-    {
-        message.needed = true;
+            message.command = "put";
+            message.params[0] = name;
+            message.params[1] = subject;
+            int value = atoi(length.c_str());
+            message.value = value;
+            
+            if (remainder.size() > 0)
+                message.cache = remainder;
+            if (value > remainder.size())
+                message.needed = true;
+            else
+                message.needed = false;
+        }
     }
 
     return message;
@@ -237,4 +228,61 @@ void Server::get_value(int client, Message message)
 {
     if (debug)
         cout << "SERVER:: get_value()" << endl;
+
+    string request = message.cache;
+    // read until we get a newline
+    while (message.value > request.size()) 
+    {
+        int nread = recv(client,buf_,1024,0);
+        if (nread < 0) 
+        {
+            if (errno == EINTR)
+                // the socket call was interrupted -- try again
+                continue;
+            else
+                // an error occurred, so break out
+                if (debug)
+                    cout << "SERVER:: an error occured" << endl;
+                break;
+        } 
+        else if (nread == 0) 
+        {
+            if (debug)
+                cout << "SERVER:: error: socket closed" << endl;
+            // the socket is closed
+            break;
+        }
+        // be sure to use append in case we have binary data
+        request.append(buf_,nread);
+    }
+    message.cache = request;
+
+    if (debug)
+        cout << "SERVER:: completed get_value()" << endl;
+}
+
+string Server::put_command(Message message)
+{
+    string name = message.params[0];
+    string subject = message.params[1];
+    string email = message.cache;
+
+    map<string,vector<map<string, string> > >::iterator it;
+    it = data.find(name);
+    if (it == data.end())
+    {
+        //pair<string, string> sub_pair(subject, message.cache);
+        map<string, string> user_message;
+        user_message.insert(pair<string,string>(subject,email));
+        vector<map<string, string> > user_messages;
+        user_messages.push_back(user_message);
+        pair<string, vector<map<string, string> > > user_account(name, user_messages);
+        data.insert(user_account);
+    }
+    else
+    {
+        //pair<string, string> sub_pair(subject, message.cache);
+        //it->second.insert(sub_pair);
+    }
+    return "OK";
 }
