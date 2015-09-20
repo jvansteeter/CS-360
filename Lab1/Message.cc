@@ -11,6 +11,18 @@ Message::~Message()
 
 }
 
+string Message::toString()
+{
+	stringstream output;
+	output << "Message::command=" << command << endl
+		<< "message::params[0]=" << params[0] << endl
+		<< "message::params[1]=" << params[1] << endl
+		<< "message::value=" << value << endl
+		<< "message::needed=" << needed << endl
+		<< "message::cache=" << cache << endl;
+	return output.str();
+}
+
 /*
 string Message::getCommand()
 {

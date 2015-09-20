@@ -68,21 +68,8 @@ Client::protocol() {
         getline(cin, line);
         // parse the command
         string command = parse_command(line);
-        // append a newline
-        //line += "\n";
-
-        /*
-        // send request
-        bool success = send_request(line);
-        // break if an error occurred
-        if (not success)
-            break;
-        */
-        // get a response
-        bool success = get_response();
-        // break if an error occurred
-        if (not success)
-            break;
+        if(debug)
+            cout << "CLIENT:: parsing finished" << endl;
         
         if (command == "quit")
             running = false;
@@ -117,11 +104,15 @@ Client::send_request(string request) {
     return true;
 }
 
-bool
-Client::get_response() {
+string
+Client::get_response() 
+{
     string response = "";
     // read until we get a newline
-    while (response.find("\n") == string::npos) {
+    while (response.find("\n") == string::npos) 
+    {
+        if(debug)
+            cout << "CLIENT:: get_response()" << endl;
         int nread = recv(server_,buf_,1024,0);
         if (nread < 0) {
             if (errno == EINTR)
@@ -129,19 +120,21 @@ Client::get_response() {
                 continue;
             else
                 // an error occurred, so break out
-                return false;
+                return "";
         } else if (nread == 0) {
             // the socket is closed
-            return false;
+            return "";
         }
         // be sure to use append in case we have binary data
         response.append(buf_,nread);
+        if(debug)
+            cout << "CLIENT:: response=" << response << endl;
     }
     // a better client would cut off anything after the newline and
     // save it in a cache
     if (debug)
         cout << response;
-    return true;
+    return response;
 }
 
 string Client::parse_command(string command)
@@ -177,15 +170,45 @@ string Client::parse_command(string command)
 // List Command
         else if (argument == "list")
         {
+            string user;
+            getline(iss, user, ' ');
 
+            if(user.size() > 0)
+                list_command(user);
+            else
+                error = true;
+            if(debug)
+                cout << "CLIENT:: listing messages for "
+                    << user << endl;
             return "list";
         }
 
 // Read Command
         else if (argument == "read")
         {
+            string user, index_string;
+            int index;
+            getline(iss, user, ' ');
+            getline(iss, index_string, ' ');
+            index = atoi(index_string.c_str());
 
+            if(user.size() > 0)
+                read_command(user, index);
+            else
+                error = true;
+            if(debug)
+                cout << "CLIENT:: reading message for "
+                    << user << " at index " << index << endl;
             return "read";
+        }
+
+// Kill Command
+        else if (argument == "kill")
+        {
+            send_request("kill");
+            if(debug)
+                cout << "CLIENT:: killing server" << endl;
+            return "kill";
         }
 
 // Quit command
@@ -212,7 +235,7 @@ string Client::parse_command(string command)
 void Client::send_command(string user, string subject)
 {
     if (debug)
-        cout << "CLIENT:: sendCommand()" << endl;
+        cout << "CLIENT:: send_command()" << endl;
 
     stringstream message;
     cout << "- Type your message. End with a blank line -" << endl;
@@ -239,22 +262,63 @@ void Client::send_command(string user, string subject)
     // send message
      bool success = send_request(request.str());
     // break if an error occurred
-    //if (not success)
-        //break;
+    if (not success)
+        cout << "error: message not sent" << endl;
 
-    // get a response
-    //success = get_response();
+    string response = get_response();
+    if(debug)
+        cout << "CLIENT:: response received" << endl;
     // break if an error occurred
-    //if (not success)
-        //sbreak;
+    if (response == "")
+    {
+        cout << "error: no response received" << endl;
+    }
 }
 
 void Client::list_command(string user)
 {
+    if(debug)
+        cout << "CLIENT:: list_command()" << endl;
+    string request = "list " + user + "\n";
 
+    bool success = send_request(request);
+    // break if an error occurred
+    if (not success)
+        cout << "error: message not sent" << endl;
+    // get response
+    string response = get_response();
+    if(debug)
+        cout << "CLIENT:: response received" << endl;
+    // break if an error occurred
+    if (response == "")
+    {
+        cout << "error: no response received" << endl;
+        return;
+    }
+    cout << response << endl;
 }
 
 void Client::read_command(string user, int index)
 {
+    if(debug)
+        cout << "CLIENT:: read_command()" << endl;
+    stringstream ss; 
+    ss << "get " << user << " " << index << "\n";
+    string request = ss.str();
 
+    bool success = send_request(request);
+    // break if an error occurred
+    if (not success)
+        cout << "error: message not sent" << endl;
+    // get response
+    string response = get_response();
+    if(debug)
+        cout << "CLIENT:: response received" << endl;
+    // break if an error occurred
+    if(response == "")
+    {
+        cout << "error: no response received" << endl;
+        return;
+    }
+    cout << response;
 }

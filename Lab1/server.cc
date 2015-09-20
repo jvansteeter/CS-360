@@ -109,14 +109,21 @@ Server::handle(int client) {
         {
             success = send_response(client,put_command(message));
         }
-
-       
-        
+        else if(message.command == "list")
+        {
+            success = send_response(client,list_command(message));
+        }
+        else if(message.command == "get")
+        {
+            success = send_response(client,get_command(message));
+        }
+        else if(message.command == "kill")
+        {
+            break;
+        }
         // break if an error occurred
         if (not success)
-            break;
-        
-              
+            break;     
     }
     close(client);
 }
@@ -150,7 +157,10 @@ Server::get_request(int client) {
 }
 
 bool
-Server::send_response(int client, string response) {
+Server::send_response(int client, string response) 
+{
+    if(debug)
+        cout << "SERVER:: send_response()=" << response << endl;
     // prepare to send response
     const char* ptr = response.c_str();
     int nleft = response.length();
@@ -173,6 +183,8 @@ Server::send_response(int client, string response) {
         nleft -= nwritten;
         ptr += nwritten;
     }
+    if(debug)
+        cout << "CLIENT:: response sent" << endl;
     return true;
 }
 
@@ -186,25 +198,32 @@ Server::parse_request(string request)
 
     while(!iss.eof())
     {
-        string arg;
-        getline(iss, arg, ' ');
+        string arg, command;
+        getline(iss, arg, '\n');
+        istringstream arg_line(arg);
+        getline(arg_line, command, ' ');
 
 // Put command
-        if (arg == "put")
+        if (command == "put")
         {
             string name, subject, length, cache;
-            getline(iss, name, ' ');
-            getline(iss, subject, ' ');
-            getline(iss, length, ' ');
+            getline(arg_line, name, ' ');
+            getline(arg_line, subject, ' ');
+            getline(arg_line, length, ' ');
             
             stringstream ss;
             while(!iss.eof())
             {
                 string line;
                 getline(iss,line);
+                if(debug)
+                    cout << "SERVER:: parsing> " << line << endl;
                 ss << line << "\n";
             }
             string remainder = ss.str();
+
+            if(debug)
+                cout << "SERVER:: remainder=" << remainder << endl;
 
             message.command = "put";
             message.params[0] = name;
@@ -218,9 +237,53 @@ Server::parse_request(string request)
                 message.needed = true;
             else
                 message.needed = false;
+
+            if (debug)
+                cout << message.toString();
+        }
+// list command
+        if (command == "list")
+        {
+            string name;
+            getline(arg_line, name, ' ');
+
+            message.command = "list";
+            message.params[0] = name;
+            message.value = 0;
+            message.needed = false;
+            message.cache = "";
+
+            if(debug)
+                cout << message.toString();
+        }
+// get command
+        if (command == "get")
+        {
+            string name, index_string;
+            getline(arg_line, name, ' ');
+            getline(arg_line, index_string, ' ');
+
+            message.command = "get";
+            message.params[0] = name;
+            message.params[1] = index_string;
+            message.value = 0;
+            message.needed = false;
+            message.cache = "";
+
+            if(debug)
+                cout << message.toString();
+        }
+// kill command
+        if (command == "kill")
+        {
+            message.command = "kill";
+            message.params[0] = "";
+            message.params[1] = "";
+            message.value = 0;
+            message.needed = false;
+            message.cache = "";
         }
     }
-
     return message;
 }
 
@@ -233,6 +296,8 @@ void Server::get_value(int client, Message message)
     // read until we get a newline
     while (message.value > request.size()) 
     {
+        if (debug)
+            cout << "SERVER:: request.size()=" << request.size() << endl;
         int nread = recv(client,buf_,1024,0);
         if (nread < 0) 
         {
@@ -263,26 +328,79 @@ void Server::get_value(int client, Message message)
 
 string Server::put_command(Message message)
 {
+    if(debug)
+        cout << "SERVER:: put_command()" << endl;
     string name = message.params[0];
     string subject = message.params[1];
     string email = message.cache;
 
-    map<string,vector<map<string, string> > >::iterator it;
+    map<string,vector<pair<string, string> > >::iterator it;
     it = data.find(name);
     if (it == data.end())
     {
-        //pair<string, string> sub_pair(subject, message.cache);
-        map<string, string> user_message;
-        user_message.insert(pair<string,string>(subject,email));
-        vector<map<string, string> > user_messages;
+        pair<string,string> user_message(subject,email);
+        vector<pair<string, string> > user_messages;
         user_messages.push_back(user_message);
-        pair<string, vector<map<string, string> > > user_account(name, user_messages);
+        pair<string, vector<pair<string, string> > > user_account(name, user_messages);
         data.insert(user_account);
     }
     else
     {
-        //pair<string, string> sub_pair(subject, message.cache);
-        //it->second.insert(sub_pair);
+        it->second.push_back(pair<string,string>(subject,email));
     }
-    return "OK";
+    return "OK\n";
+}
+
+string Server::list_command(Message message)
+{
+    if(debug)
+        cout << "SERVER:: list_command()" << endl;
+    string name = message.params[0];
+    map<string,vector<pair<string, string> > >::iterator it;
+    it = data.find(name);
+
+    string response;
+    if(it == data.end())
+    {
+        response = "list 0\n";
+    }
+    else
+    {
+        stringstream ss;
+        ss << "list " << it->second.size() << "\n";
+        for (unsigned int i = 0; i < it->second.size(); i++)
+        {
+            ss << (i + 1) << " " << it->second[i].first << "\n";
+        }
+        response = ss.str();
+    }
+    return response;
+}
+
+string Server::get_command(Message message)
+{
+    if(debug)
+        cout << "SERVER:: get_command()" << endl;
+    string name = message.params[0];
+    string index_string = message.params[1];
+    int index = atoi(index_string.c_str()) - 1;
+    map<string,vector<pair<string, string> > >::iterator it;
+    it = data.find(name);
+
+    string response;
+    if(it == data.end())
+    {
+        response = "error: there is no message for that use at that index\n";
+    }
+    else
+    {
+        stringstream ss;
+        string subject = it->second[index].first;
+        string email = it->second[index].second;
+        int length = email.size();
+        ss << "message " << subject << " " << length << "\n"
+            << email;
+        response = ss.str();
+    }
+    return response;
 }

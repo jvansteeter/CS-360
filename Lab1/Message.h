@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -14,6 +15,8 @@ public:
     int value;
     bool needed;
     string cache;
+
+    string toString();
 /*
     string getCommand();
     string getParams();

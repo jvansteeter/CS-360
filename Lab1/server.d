@@ -102,4 +102,5 @@ server.o server.d : server.cc /usr/include/stdc-predef.h server.h \
  /usr/include/c++/5.1.1/bits/stl_uninitialized.h \
  /usr/include/c++/5.1.1/bits/stl_vector.h \
  /usr/include/c++/5.1.1/bits/stl_bvector.h \
- /usr/include/c++/5.1.1/bits/vector.tcc
+ /usr/include/c++/5.1.1/bits/vector.tcc /usr/include/c++/5.1.1/utility \
+ /usr/include/c++/5.1.1/bits/stl_relops.h

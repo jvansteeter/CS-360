@@ -28,7 +28,7 @@ private:
     virtual void close_socket();
     void protocol();
     bool send_request(string);
-    bool get_response();
+    string get_response();
     string parse_command(string command);
     void send_command(string user, string subject);
     void list_command(string user);
