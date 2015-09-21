@@ -104,8 +104,8 @@ Server::handle(int client) {
 
         // if more of the message is needed
         if (message.needed)
-            get_value(client,message);
-        
+            get_value(client, message);
+
         // run the commands
         bool success;
         if (message.command == "put")
@@ -209,9 +209,9 @@ Server::parse_request(string request)
         getline(iss, arg, '\n');
         istringstream arg_line(arg);
         getline(arg_line, command, ' ');
-
+// put command
         if (command == "put")
-        {// Put command
+        {
             string name, subject, length, cache;
             getline(arg_line, name, ' ');
             getline(arg_line, subject, ' ');
@@ -247,8 +247,9 @@ Server::parse_request(string request)
             if (debug)
                 cout << message.toString();
         }
-        else if (command == "list")
-        {// list command
+// list command        
+        if (command == "list")
+        {
             string name;
             getline(arg_line, name, ' ');
 
@@ -261,8 +262,9 @@ Server::parse_request(string request)
             if(debug)
                 cout << message.toString();
         }
-        else if (command == "get")
-        {// get command
+// get command       
+        if (command == "get")
+        {
             string name, index_string;
             getline(arg_line, name, ' ');
             getline(arg_line, index_string, ' ');
@@ -277,8 +279,9 @@ Server::parse_request(string request)
             if(debug)
                 cout << message.toString();
         }
-        else if (command == "reset")
-        {// reset command
+// reset command
+        if (command == "reset")
+        {
             message.command = "reset";
             message.params[0] = "";
             message.params[1] = "";
@@ -286,17 +289,11 @@ Server::parse_request(string request)
             message.needed = false;
             message.cache = "";
         }
-        else
-        {// defaut case for errors
-            if(debug)
-                cout << "SERVER:: an error occured while parsing\nunrecognized command\n";
-            message.command = "error";
-        }
     }
     return message;
 }
 
-void Server::get_value(int client, Message message)
+void Server::get_value(int client, Message & message)
 {
     if (debug)
         cout << "SERVER:: get_value()" << endl;
@@ -305,34 +302,20 @@ void Server::get_value(int client, Message message)
     // read until we get a newline
     while (message.value > request.size()) 
     {
-        if (debug)
-            cout << "SERVER:: request.size()=" << request.size() << endl;
-        int nread = recv(client,buf_,1024,0);
-        if (nread < 0) 
-        {
-            if (errno == EINTR)
-                // the socket call was interrupted -- try again
-                continue;
-            else
-                // an error occurred, so break out
-                if (debug)
-                    cout << "SERVER:: an error occured" << endl;
-                break;
-        } 
-        else if (nread == 0) 
-        {
-            if (debug)
-                cout << "SERVER:: error: socket closed" << endl;
-            // the socket is closed
-            break;
-        }
-        // be sure to use append in case we have binary data
-        request.append(buf_,nread);
+        string cache = get_request(client);
+        request.append(cache);
+
+        if(debug)
+            cout << "SERVER:: caching-> " << cache;
     }
     message.cache = request;
 
     if (debug)
+    {
+        cout << "SERVER:: cache=" << message.cache << endl;
         cout << "SERVER:: completed get_value()" << endl;
+    }
+
 }
 
 string Server::put_command(Message message)
@@ -342,6 +325,8 @@ string Server::put_command(Message message)
     string name = message.params[0];
     string subject = message.params[1];
     string email = message.cache;
+
+    //cout << "!!!!!!!!!!!!!!!!!!!" << message.cache << endl << endl;
 
     map<string,vector<pair<string, string> > >::iterator it;
     it = data.find(name);

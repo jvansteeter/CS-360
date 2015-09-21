@@ -35,6 +35,7 @@ private:
     void send_command(string user, string subject);
     void list_command(string user);
     void read_command(string user, int index);
+    void get_value(Message & message);
 
     string host_;
     int port_;

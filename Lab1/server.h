@@ -36,7 +36,7 @@ private:
     bool send_response(int, string);
 
     Message parse_request(string request);
-    void get_value(int client, Message message);
+    void get_value(int client, Message & message);
     string put_command(Message message);
     string list_command(Message message);
     string get_command(Message message);

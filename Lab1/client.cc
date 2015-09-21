@@ -325,6 +325,7 @@ void Client::read_command(string user, int index)
     if(debug)
         cout << "CLIENT:: parse read response" << endl;
     istringstream iss(response);
+    Message message;
 
     while(!iss.eof())
     {
@@ -349,6 +350,27 @@ void Client::read_command(string user, int index)
                 ss << line << '\n';
             }
             string email = ss.str();
+
+            // construct message
+            message.command = "message";
+            message.params[0] = subject;
+            int value = atoi(length.c_str());
+            message.value = value;
+
+            cout << "1!!!!!!!!!!!!!!!!!!!!!!!!!!" << message.toString();
+
+            if (email.size() > 0)
+                message.cache = email;
+            if(value > email.size())
+                message.needed = true;
+            else
+                message.needed = false;
+
+            if (message.needed)
+                get_value(message);
+
+            cout << "2!!!!!!!!!!!!!!!!!!!" << message.toString();
+
             // print message
             cout << subject << endl
                 << email;
@@ -357,5 +379,29 @@ void Client::read_command(string user, int index)
         {
             cout << "error: received unexpected message from server" << endl;
         }
+    }
+}
+
+void Client::get_value(Message & message)
+{
+    if (debug)
+        cout << "CLIENT:: get_value()" << endl;
+
+    string request = message.cache;
+    // read until we get a newline
+    while (message.value > request.size()) 
+    {
+        string cache = get_response();
+        request.append(cache);
+
+        if(debug)
+            cout << "CLIENT:: caching-> " << cache;
+    }
+    message.cache = request;
+
+    if (debug)
+    {
+        cout << "CLIENT:: cache=" << message.cache << endl;
+        cout << "CLIENT:: completed get_value()" << endl;
     }
 }
