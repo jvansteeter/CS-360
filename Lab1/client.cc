@@ -132,8 +132,8 @@ Client::get_response()
     }
     // a better client would cut off anything after the newline and
     // save it in a cache
-    if (debug)
-        cout << response;
+    // if (debug)
+    //     cout << response;
     return response;
 }
 
@@ -208,6 +208,9 @@ string Client::parse_command(string command)
             send_request("reset\n");
             if(debug)
                 cout << "CLIENT:: reseting server" << endl;
+            string response = get_response();
+            if(debug)
+                cout << "CLIENT:: response= " << response << endl;
             return "reset";
         }
 
@@ -241,11 +244,16 @@ void Client::send_command(string user, string subject)
     cout << "- Type your message. End with a blank line -" << endl;
 
     string line;
+    bool start = true;
     while(getline(cin, line))
     {
         if (line.size() > 0)
         {
-            message << line << '\n';
+            if(start)
+                start = false;
+            else
+                message << '\n';
+            message << line;// << '\n';
         }
         else
             break;
@@ -289,6 +297,18 @@ void Client::list_command(string user)
     string response = get_response();
     if(debug)
         cout << "CLIENT:: response received" << endl;
+
+    istringstream iss(response);
+    Message message;
+
+    while(!iss.eof())
+    {
+        string arg, list, number;
+        getline(iss, arg, '\n');
+        istringstream arg_line(arg);
+        getline(arg_line, list, ' ');
+        getline(arg_line, number, ' ');
+    }
     // break if an error occurred
     if (response == "")
     {
@@ -341,13 +361,18 @@ void Client::read_command(string user, int index)
             getline(arg_line, length, ' ');
 
             stringstream ss;
+            bool start = true;
             while(!iss.eof())
             {
+                if(start)
+                    start = false;
+                else
+                    ss << '\n';
                 string line;
                 getline(iss,line);
                 if(debug)
                     cout << "CLIENT:: parsing> " << line << endl;
-                ss << line << '\n';
+                ss << line;// << "\n";
             }
             string email = ss.str();
 
@@ -356,24 +381,27 @@ void Client::read_command(string user, int index)
             message.params[0] = subject;
             int value = atoi(length.c_str());
             message.value = value;
-
-            cout << "1!!!!!!!!!!!!!!!!!!!!!!!!!!" << message.toString();
-
-            if (email.size() > 0)
-                message.cache = email;
+            
             if(value > email.size())
                 message.needed = true;
             else
                 message.needed = false;
+            if (email.size() > 0)
+            {
+                //email.append("\n");
+                message.cache = email;
+            }
+
+            //cout << "1!!!!!!!!!!!!!!!!!!!!!!!!!!" << message.toString();
 
             if (message.needed)
                 get_value(message);
 
-            cout << "2!!!!!!!!!!!!!!!!!!!" << message.toString();
+            //cout << "2!!!!!!!!!!!!!!!!!!!" << message.toString();
 
             // print message
             cout << subject << endl
-                << email;
+                << message.cache << endl;
         }
         else
         {

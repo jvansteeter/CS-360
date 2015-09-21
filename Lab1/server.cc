@@ -105,6 +105,8 @@ Server::handle(int client) {
         // if more of the message is needed
         if (message.needed)
             get_value(client, message);
+        //else
+            //message.cache.append("\n");
 
         // run the commands
         bool success;
@@ -218,13 +220,18 @@ Server::parse_request(string request)
             getline(arg_line, length, ' ');
             
             stringstream ss;
+            bool start = true;
             while(!iss.eof())
             {
+                if(start)
+                    start = false;
+                else
+                    ss << '\n';
                 string line;
                 getline(iss,line);
                 if(debug)
                     cout << "SERVER:: parsing> " << line << endl;
-                ss << line << "\n";
+                ss << line;// << "\n";
             }
             string remainder = ss.str();
 
@@ -308,7 +315,7 @@ void Server::get_value(int client, Message & message)
         if(debug)
             cout << "SERVER:: caching-> " << cache;
     }
-    message.cache = request;
+    message.cache = request;// + "\n";
 
     if (debug)
     {
@@ -325,8 +332,6 @@ string Server::put_command(Message message)
     string name = message.params[0];
     string subject = message.params[1];
     string email = message.cache;
-
-    //cout << "!!!!!!!!!!!!!!!!!!!" << message.cache << endl << endl;
 
     map<string,vector<pair<string, string> > >::iterator it;
     it = data.find(name);
@@ -394,6 +399,9 @@ string Server::get_command(Message message)
         int length = email.size();
         ss << "message " << subject << " " << length << "\n"
             << email;
+
+        cout << "!!!size= " << email.size() << endl << email << endl;
+
         response = ss.str();
     }
     return response;
