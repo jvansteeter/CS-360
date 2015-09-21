@@ -60,7 +60,10 @@ Server::create() {
 }
 
 void
-Server::close_socket() {
+Server::close_socket() 
+{
+    if(debug)
+        cout << "SERVER:: close_socket()" << endl;
     close(server_);
 }
 
@@ -117,9 +120,13 @@ Server::handle(int client) {
         {
             success = send_response(client,get_command(message));
         }
-        else if(message.command == "kill")
+        else if(message.command == "reset")
         {
-            break;
+            success = send_response(client,reset_command(message));
+        }
+        else
+        {
+            success = send_response(client,"error: unexpected command\n");
         }
         // break if an error occurred
         if (not success)
@@ -184,7 +191,7 @@ Server::send_response(int client, string response)
         ptr += nwritten;
     }
     if(debug)
-        cout << "CLIENT:: response sent" << endl;
+        cout << "SERVER:: response sent" << endl;
     return true;
 }
 
@@ -203,9 +210,8 @@ Server::parse_request(string request)
         istringstream arg_line(arg);
         getline(arg_line, command, ' ');
 
-// Put command
         if (command == "put")
-        {
+        {// Put command
             string name, subject, length, cache;
             getline(arg_line, name, ' ');
             getline(arg_line, subject, ' ');
@@ -241,9 +247,8 @@ Server::parse_request(string request)
             if (debug)
                 cout << message.toString();
         }
-// list command
-        if (command == "list")
-        {
+        else if (command == "list")
+        {// list command
             string name;
             getline(arg_line, name, ' ');
 
@@ -256,9 +261,8 @@ Server::parse_request(string request)
             if(debug)
                 cout << message.toString();
         }
-// get command
-        if (command == "get")
-        {
+        else if (command == "get")
+        {// get command
             string name, index_string;
             getline(arg_line, name, ' ');
             getline(arg_line, index_string, ' ');
@@ -273,15 +277,20 @@ Server::parse_request(string request)
             if(debug)
                 cout << message.toString();
         }
-// kill command
-        if (command == "kill")
-        {
-            message.command = "kill";
+        else if (command == "reset")
+        {// reset command
+            message.command = "reset";
             message.params[0] = "";
             message.params[1] = "";
             message.value = 0;
             message.needed = false;
             message.cache = "";
+        }
+        else
+        {// defaut case for errors
+            if(debug)
+                cout << "SERVER:: an error occured while parsing\nunrecognized command\n";
+            message.command = "error";
         }
     }
     return message;
@@ -403,4 +412,13 @@ string Server::get_command(Message message)
         response = ss.str();
     }
     return response;
+}
+
+string Server::reset_command(Message message)
+{
+    if(debug)
+        cout << "SERVER:: reset_command()" << endl;
+    // create new database
+    data.clear();
+    return "OK\n";
 }

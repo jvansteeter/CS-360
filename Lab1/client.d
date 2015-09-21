@@ -98,4 +98,5 @@ client.o client.d : client.cc /usr/include/stdc-predef.h client.h \
  /usr/include/c++/5.1.1/x86_64-redhat-linux/bits/basic_file.h \
  /usr/include/c++/5.1.1/x86_64-redhat-linux/bits/c++io.h \
  /usr/include/c++/5.1.1/bits/fstream.tcc /usr/include/c++/5.1.1/iostream \
- /usr/include/c++/5.1.1/sstream /usr/include/c++/5.1.1/bits/sstream.tcc
+ /usr/include/c++/5.1.1/sstream /usr/include/c++/5.1.1/bits/sstream.tcc \
+ Message.h

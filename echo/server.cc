@@ -179,7 +179,9 @@ Server::parse_request(string request)
     message.params[0] = "";
     message.value = "";
     message.needed = false;
+
     int count = 0;
+    
     while(!iss.eof())
     {
         string output;
@@ -235,6 +237,12 @@ void Server::get_value(int client, Message message)
 
 void Server::proveHomework(Message message)
 {
+    cout << "CLAYTON START" << endl;
+    cout << "Params[0]:" + message.params[0] << endl;
+    cout << "command:" + message.command << endl;
+    cout << "value:" + message.value << endl;
+    cout << "CLAYTON END" << endl;
+
     if (message.command == "store" 
         && message.params[0] != ""
         && message.value != "")

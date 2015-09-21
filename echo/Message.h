@@ -10,7 +10,7 @@ public:
     ~Message();
 
     string command;
-    string params[];
+    string params[1];
     string value;
     bool needed;
     string cache;

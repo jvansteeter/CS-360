@@ -202,13 +202,13 @@ string Client::parse_command(string command)
             return "read";
         }
 
-// Kill Command
-        else if (argument == "kill")
+// Reset Command
+        else if (argument == "reset")
         {
-            send_request("kill");
+            send_request("reset\n");
             if(debug)
-                cout << "CLIENT:: killing server" << endl;
-            return "kill";
+                cout << "CLIENT:: reseting server" << endl;
+            return "reset";
         }
 
 // Quit command
@@ -320,5 +320,42 @@ void Client::read_command(string user, int index)
         cout << "error: no response received" << endl;
         return;
     }
-    cout << response;
+
+    // Response from the server has meta data that needs to be parsed
+    if(debug)
+        cout << "CLIENT:: parse read response" << endl;
+    istringstream iss(response);
+
+    while(!iss.eof())
+    {
+        string arg, command;
+        getline(iss, arg, '\n');
+        istringstream arg_line(arg);
+        getline(arg_line, command, ' ');
+        // the only command should be the message command
+        if(command == "message")
+        {
+            string subject, length;
+            getline(arg_line, subject, ' ');
+            getline(arg_line, length, ' ');
+
+            stringstream ss;
+            while(!iss.eof())
+            {
+                string line;
+                getline(iss,line);
+                if(debug)
+                    cout << "CLIENT:: parsing> " << line << endl;
+                ss << line << '\n';
+            }
+            string email = ss.str();
+            // print message
+            cout << subject << endl
+                << email;
+        }
+        else
+        {
+            cout << "error: received unexpected message from server" << endl;
+        }
+    }
 }

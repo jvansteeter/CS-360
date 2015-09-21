@@ -40,6 +40,7 @@ private:
     string put_command(Message message);
     string list_command(Message message);
     string get_command(Message message);
+    string reset_command(Message message);
     
     int port_;
     int server_;

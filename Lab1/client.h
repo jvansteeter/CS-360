@@ -14,6 +14,8 @@
 #include <string>
 #include <sstream>
 
+#include "Message.h"
+
 using namespace std;
 
 class Client {
