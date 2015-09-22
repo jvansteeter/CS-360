@@ -300,6 +300,7 @@ void Client::list_command(string user)
 
     istringstream iss(response);
     Message message;
+    stringstream ss;
 
     while(!iss.eof())
     {
@@ -308,14 +309,27 @@ void Client::list_command(string user)
         istringstream arg_line(arg);
         getline(arg_line, list, ' ');
         getline(arg_line, number, ' ');
+
+        bool start = true;
+        while(!iss.eof())
+        {
+            if(start)
+                start = false;
+            else
+                ss << '\n';
+            string line;
+            getline(iss,line);
+            ss << line;
+        }
     }
+    string messages = ss.str();
     // break if an error occurred
     if (response == "")
     {
         cout << "error: no response received" << endl;
         return;
     }
-    cout << response << endl;
+    cout << messages << endl;
 }
 
 void Client::read_command(string user, int index)

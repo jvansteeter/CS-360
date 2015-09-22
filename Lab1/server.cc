@@ -208,6 +208,8 @@ Server::parse_request(string request)
     while(!iss.eof())
     {
         string arg, command;
+        // start with the error case, if it is a good case error will get overwriten
+        //message.command = "error";
         getline(iss, arg, '\n');
         istringstream arg_line(arg);
         getline(arg_line, command, ' ');
@@ -393,14 +395,15 @@ string Server::get_command(Message message)
     }
     else
     {
+        //test for the index out of bounds
+        if(index + 1 > it->second.size())
+            return "error out of bounds index\n";
         stringstream ss;
         string subject = it->second[index].first;
         string email = it->second[index].second;
         int length = email.size();
         ss << "message " << subject << " " << length << "\n"
             << email;
-
-        cout << "!!!size= " << email.size() << endl << email << endl;
 
         response = ss.str();
     }
