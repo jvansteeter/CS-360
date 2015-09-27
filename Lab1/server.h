@@ -45,7 +45,7 @@ private:
     int port_;
     int server_;
     int buflen_;
-    char* buf_;
+    //char* buf_;
     bool debug;
 
     map<string,vector<pair<string, string> > > data;

@@ -4,12 +4,12 @@ Server::Server(int port, bool d) {
     // setup variables
     port_ = port;
     buflen_ = 1024;
-    buf_ = new char[buflen_+1];
+    //buf_ = new char[buflen_+1];
     debug =d;
 }
 
 Server::~Server() {
-    delete buf_;
+    //delete buf_;
 }
 
 void
@@ -128,7 +128,7 @@ Server::handle(int client) {
         }
         else
         {
-            success = send_response(client,"error: unexpected command\n");
+            success = send_response(client,"error invalid command\n");
         }
         // break if an error occurred
         if (not success)
@@ -140,6 +140,7 @@ Server::handle(int client) {
 string
 Server::get_request(int client) {
     string request = "";
+    char* buf_ = new char[buflen_+1];
     // read until we get a newline
     while (request.find("\n") == string::npos) 
     {
@@ -151,10 +152,15 @@ Server::get_request(int client) {
                 // the socket call was interrupted -- try again
                 continue;
             else
+            {
                 // an error occurred, so break out
+                delete buf_;
                 return "";
-        } else if (nread == 0) {
+            }
+        } 
+        else if (nread == 0) {
             // the socket is closed
+            delete buf_;
             return "";
         }
         // be sure to use append in case we have binary data
@@ -162,6 +168,7 @@ Server::get_request(int client) {
     }
     // a better server would cut off anything after the newline and
     // save it in a cache
+    delete buf_;
     return request;
 }
 
@@ -205,99 +212,130 @@ Server::parse_request(string request)
     istringstream iss(request);
     Message message;
 
-    while(!iss.eof())
+    try
     {
-        string arg, command;
-        // start with the error case, if it is a good case error will get overwriten
-        //message.command = "error";
-        getline(iss, arg, '\n');
-        istringstream arg_line(arg);
-        getline(arg_line, command, ' ');
-// put command
-        if (command == "put")
+        while(!iss.eof())
         {
-            string name, subject, length, cache;
-            getline(arg_line, name, ' ');
-            getline(arg_line, subject, ' ');
-            getline(arg_line, length, ' ');
-            
-            stringstream ss;
-            bool start = true;
-            while(!iss.eof())
+            string arg, command;
+            // start with the error case, if it is a good case error will get overwriten
+            //message.command = "error";
+            getline(iss, arg, '\n');
+            istringstream arg_line(arg);
+            getline(arg_line, command, ' ');
+    // put command
+            if (command == "put")
             {
-                if(start)
-                    start = false;
-                else
-                    ss << '\n';
-                string line;
-                getline(iss,line);
+                string name, subject, length, cache;
+                getline(arg_line, name, ' ');
+                getline(arg_line, subject, ' ');
+                getline(arg_line, length, ' ');
+
+                if(name == "" || subject == "" || length == "")
+                {
+                    message.command == "error";
+                    return message;
+                }
+                
+                stringstream ss;
+                bool start = true;
+                while(!iss.eof())
+                {
+                    if(start)
+                        start = false;
+                    else
+                        ss << '\n';
+                    string line;
+                    getline(iss,line);
+                    if(debug)
+                        cout << "SERVER:: parsing> " << line << endl;
+                    ss << line;// << "\n";
+                }
+                string remainder = ss.str();
+
                 if(debug)
-                    cout << "SERVER:: parsing> " << line << endl;
-                ss << line;// << "\n";
+                    cout << "SERVER:: remainder=" << remainder << endl;
+
+                message.command = "put";
+                message.params[0] = name;
+                message.params[1] = subject;
+                int value = atoi(length.c_str());
+                message.value = value;
+                
+                if (remainder.size() > 0)
+                    message.cache = remainder;
+                if (value > remainder.size())
+                    message.needed = true;
+                else
+                    message.needed = false;
+
+                if (debug)
+                    cout << message.toString();
+                return message;
             }
-            string remainder = ss.str();
+    // list command        
+            if (command == "list")
+            {
+                string name;
+                getline(arg_line, name, ' ');
 
-            if(debug)
-                cout << "SERVER:: remainder=" << remainder << endl;
+                if(name == "")
+                {
+                    message.command = "error";
+                    return message;
+                }
 
-            message.command = "put";
-            message.params[0] = name;
-            message.params[1] = subject;
-            int value = atoi(length.c_str());
-            message.value = value;
-            
-            if (remainder.size() > 0)
-                message.cache = remainder;
-            if (value > remainder.size())
-                message.needed = true;
-            else
+                message.command = "list";
+                message.params[0] = name;
+                message.value = 0;
                 message.needed = false;
+                message.cache = "";
 
-            if (debug)
-                cout << message.toString();
+                if(debug)
+                    cout << message.toString();
+                return message;
+            }
+    // get command       
+            if (command == "get")
+            {
+                string name, index_string;
+                getline(arg_line, name, ' ');
+                getline(arg_line, index_string, ' ');
+
+                if(name == "" || index_string == "")
+                {
+                    message.command == "error";
+                    return message;
+                }
+
+                message.command = "get";
+                message.params[0] = name;
+                message.params[1] = index_string;
+                message.value = 0;
+                message.needed = false;
+                message.cache = "";
+
+                if(debug)
+                    cout << message.toString();
+                return message;
+            }
+    // reset command
+            if (command == "reset")
+            {
+                message.command = "reset";
+                message.params[0] = "";
+                message.params[1] = "";
+                message.value = 0;
+                message.needed = false;
+                message.cache = "";
+                return message;
+            }
+    // default case
+            message.command = "error";
         }
-// list command        
-        if (command == "list")
-        {
-            string name;
-            getline(arg_line, name, ' ');
-
-            message.command = "list";
-            message.params[0] = name;
-            message.value = 0;
-            message.needed = false;
-            message.cache = "";
-
-            if(debug)
-                cout << message.toString();
-        }
-// get command       
-        if (command == "get")
-        {
-            string name, index_string;
-            getline(arg_line, name, ' ');
-            getline(arg_line, index_string, ' ');
-
-            message.command = "get";
-            message.params[0] = name;
-            message.params[1] = index_string;
-            message.value = 0;
-            message.needed = false;
-            message.cache = "";
-
-            if(debug)
-                cout << message.toString();
-        }
-// reset command
-        if (command == "reset")
-        {
-            message.command = "reset";
-            message.params[0] = "";
-            message.params[1] = "";
-            message.value = 0;
-            message.needed = false;
-            message.cache = "";
-        }
+    } 
+    catch(exception& e)
+    {
+        message.command = "error";
     }
     return message;
 }
@@ -391,7 +429,7 @@ string Server::get_command(Message message)
     string response;
     if(it == data.end())
     {
-        response = "error: there is no message for that use at that index\n";
+        response = "error there is no message for that use at that index\n";
     }
     else
     {
