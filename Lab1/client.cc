@@ -78,7 +78,13 @@ Client::protocol() {
 }
 
 bool
-Client::send_request(string request) {
+Client::send_request(string request) 
+{
+    if(debug)
+    {
+        cout << "CLIENT:: send_request()\n";
+        cout << "CLIENT:: request=" << request;
+    }
     // prepare to send request
     const char* ptr = request.c_str();
     int nleft = request.length();
@@ -109,15 +115,17 @@ Client::get_response()
 {
     string response = "";
     // read until we get a newline
-    while (response.find("\n") == string::npos) 
+    //while (response.find("\n") == string::npos) 
     {
         if(debug)
             cout << "CLIENT:: get_response()" << endl;
         int nread = recv(server_,buf_,1024,0);
         if (nread < 0) {
             if (errno == EINTR)
+            {
                 // the socket call was interrupted -- try again
-                continue;
+                // continue;
+            }
             else
                 // an error occurred, so break out
                 return "";
@@ -420,6 +428,7 @@ void Client::read_command(string user, int index)
         else
         {
             cout << "error: received unexpected message from server" << endl;
+            break;
         }
     }
 }

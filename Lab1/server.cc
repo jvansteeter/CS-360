@@ -142,15 +142,17 @@ Server::get_request(int client) {
     string request = "";
     char* buf_ = new char[buflen_+1];
     // read until we get a newline
-    while (request.find("\n") == string::npos) 
+    //while (request.find("\n") == string::npos) 
     {
         if (debug)
             cout << "SERVER:: get_request()" << endl;
         int nread = recv(client,buf_,1024,0);
         if (nread < 0) {
             if (errno == EINTR)
+            {
                 // the socket call was interrupted -- try again
-                continue;
+                //continue;
+            }
             else
             {
                 // an error occurred, so break out
@@ -232,7 +234,8 @@ Server::parse_request(string request)
 
                 if(name == "" || subject == "" || length == "")
                 {
-                    message.command == "error";
+                    message.command = "error";
+                    message.needed = false;
                     return message;
                 }
                 
@@ -281,6 +284,7 @@ Server::parse_request(string request)
                 if(name == "")
                 {
                     message.command = "error";
+                    message.needed = false;
                     return message;
                 }
 
@@ -301,9 +305,10 @@ Server::parse_request(string request)
                 getline(arg_line, name, ' ');
                 getline(arg_line, index_string, ' ');
 
-                if(name == "" || index_string == "")
+                if(name == "" || index_string == "" || index_string == "0")
                 {
-                    message.command == "error";
+                    message.command = "error";
+                    message.needed = false;
                     return message;
                 }
 
@@ -331,11 +336,13 @@ Server::parse_request(string request)
             }
     // default case
             message.command = "error";
+            message.needed = false;
         }
     } 
     catch(exception& e)
     {
         message.command = "error";
+        message.needed = false;
     }
     return message;
 }
@@ -351,7 +358,6 @@ void Server::get_value(int client, Message & message)
     {
         string cache = get_request(client);
         request.append(cache);
-
         if(debug)
             cout << "SERVER:: caching-> " << cache;
     }
