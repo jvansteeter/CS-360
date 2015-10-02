@@ -1,4 +1,4 @@
-server.o server.d : server.cc /usr/include/stdc-predef.h server.h \
+ServerFacade.o ServerFacade.d : ServerFacade.cc /usr/include/stdc-predef.h ServerFacade.h \
  /usr/include/errno.h /usr/include/features.h /usr/include/sys/cdefs.h \
  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
  /usr/include/gnu/stubs-64.h /usr/include/bits/errno.h \
@@ -94,7 +94,8 @@ server.o server.d : server.cc /usr/include/stdc-predef.h server.h \
  /usr/include/c++/5.1.1/bits/ostream.tcc \
  /usr/include/c++/5.1.1/bits/istream.tcc \
  /usr/include/c++/5.1.1/bits/sstream.tcc /usr/include/c++/5.1.1/iostream \
- Message.h /usr/include/c++/5.1.1/map \
+ Message.h database.h /usr/include/semaphore.h \
+ /usr/include/bits/semaphore.h /usr/include/c++/5.1.1/map \
  /usr/include/c++/5.1.1/bits/stl_tree.h \
  /usr/include/c++/5.1.1/bits/stl_map.h \
  /usr/include/c++/5.1.1/bits/stl_multimap.h /usr/include/c++/5.1.1/vector \

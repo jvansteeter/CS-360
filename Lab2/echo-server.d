@@ -90,7 +90,8 @@ echo-server.o echo-server.d : echo-server.cc /usr/include/stdc-predef.h \
  /usr/include/bits/in.h /usr/include/libio.h /usr/include/_G_config.h \
  /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h \
  /usr/include/string.h /usr/include/c++/5.1.1/sstream \
- /usr/include/c++/5.1.1/bits/sstream.tcc Message.h \
+ /usr/include/c++/5.1.1/bits/sstream.tcc Message.h database.h \
+ /usr/include/semaphore.h /usr/include/bits/semaphore.h \
  /usr/include/c++/5.1.1/map /usr/include/c++/5.1.1/bits/stl_tree.h \
  /usr/include/c++/5.1.1/bits/stl_map.h \
  /usr/include/c++/5.1.1/bits/stl_multimap.h /usr/include/c++/5.1.1/vector \
@@ -99,4 +100,9 @@ echo-server.o echo-server.d : echo-server.cc /usr/include/stdc-predef.h \
  /usr/include/c++/5.1.1/bits/stl_vector.h \
  /usr/include/c++/5.1.1/bits/stl_bvector.h \
  /usr/include/c++/5.1.1/bits/vector.tcc /usr/include/c++/5.1.1/utility \
- /usr/include/c++/5.1.1/bits/stl_relops.h
+ /usr/include/c++/5.1.1/bits/stl_relops.h ServerFacade.h \
+ /usr/include/c++/5.1.1/queue /usr/include/c++/5.1.1/deque \
+ /usr/include/c++/5.1.1/bits/stl_deque.h \
+ /usr/include/c++/5.1.1/bits/deque.tcc \
+ /usr/include/c++/5.1.1/bits/stl_heap.h \
+ /usr/include/c++/5.1.1/bits/stl_queue.h
