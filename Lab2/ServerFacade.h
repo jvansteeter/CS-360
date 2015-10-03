@@ -27,19 +27,19 @@ public:
 	ServerFacade(Database* data, bool debug);
 	~ServerFacade();
 
-	void handle(int client);
+	bool handle(int client);
+
+
+private:
     string get_request(int);
     bool send_response(int, string);
-
     Message parse_request(string request);
     void get_value(int client, Message & message);
-    
     string put_command(Message message);
     string list_command(Message message);
     string get_command(Message message);
     string reset_command(Message message);
 
-private:
 	//int client;
 	Database* data;
 	bool debug;

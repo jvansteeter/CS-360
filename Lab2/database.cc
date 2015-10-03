@@ -86,7 +86,10 @@ string Database::get_command(Message message)
     {
         //test for the index out of bounds
         if(index + 1 > it->second.size())
+        {
+        	sem_post(&lock);
             return "error out of bounds index\n";
+        }
         stringstream ss;
         string subject = it->second[index].first;
         string email = it->second[index].second;

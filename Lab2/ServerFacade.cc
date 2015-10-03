@@ -11,7 +11,7 @@ ServerFacade::~ServerFacade()
 {
 }
 
-void
+bool
 ServerFacade::handle(int client) {
     // loop to handle all requests
     //while (1) 
@@ -23,7 +23,11 @@ ServerFacade::handle(int client) {
         string request = get_request(client);
         // break if client is done or an error occurred
         if (request.empty())
-            break;
+        {
+            close(client);
+            return false;
+            //break;
+        }
 
         if (debug)
             cout << request << endl;
@@ -62,9 +66,14 @@ ServerFacade::handle(int client) {
         }
         // break if an error occurred
         if (not success)
-            break;     
+        {
+            close(client);
+            return false;
+            //break;     
+        }
    }
-    close(client);
+   return true;
+    //close(client);
 }
 
 string

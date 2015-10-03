@@ -41,12 +41,22 @@ handle_que(void *ptr)
     {
         sem_wait(que_notEmpty);
         cout << "I am " << pthread_self() << " and I am AWAKE!!!" << endl;
-        sem_wait(que_lock);
+//        sem_wait(que_lock);
         int client = client_que->front();
         client_que->pop();
-        client_que->push(client);
-        facade.handle(client);
-        sem_post(que_lock);
+        bool success = facade.handle(client);
+        cout << "@handle " << success << " and que is size: " << client_que->size() << endl;
+        if(success)
+        {
+            client_que->push(client);
+            sem_post(que_notEmpty);
+        }
+        else
+        {
+            //sem_post(que_notEmpty);
+        }
+        //sem_post(que_notEmpty);
+//        sem_post(que_lock);
     }
 }
 
@@ -55,7 +65,7 @@ Server::run() {
     // create and run the server
     create();
 
-    for(unsigned int i = 0; i < 10; i++)
+    for(unsigned int i = 0; i < 1; i++)
     {
         struct handle_ package;
         package.client_que = &client_que;
@@ -134,9 +144,9 @@ Server::serve()
         if(debug)
             cout << "SERVER:: serve()" << endl;
         //handle(client);
-        sem_wait(&que_lock);
+//        sem_wait(&que_lock);
         client_que.push(client);
-        sem_post(&que_lock);
+//        sem_post(&que_lock);
         sem_post(&que_notEmpty);
     }
     close_socket();
