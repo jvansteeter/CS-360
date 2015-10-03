@@ -29,7 +29,6 @@ public:
 
 	bool handle(int client);
 
-
 private:
     string get_request(int);
     bool send_response(int, string);
@@ -40,7 +39,6 @@ private:
     string get_command(Message message);
     string reset_command(Message message);
 
-	//int client;
 	Database* data;
 	bool debug;
 };

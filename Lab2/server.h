@@ -35,15 +35,10 @@ private:
     void close_socket();
     void serve();
 
-    
     int port_;
     int server_;
-    //int buflen_;
-    //char* buf_;
     bool debug;
-
     Database data;
-    //map<string,vector<pair<string, string> > > data;
     queue<int> client_que;
     sem_t que_lock;
     sem_t que_notEmpty;

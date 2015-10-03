@@ -19,7 +19,7 @@ string Database::put_command(Message message)
 
     map<string,vector<pair<string, string> > >::iterator it;
 
-    // lock mutex
+    // lock semaphore
     sem_wait(&lock);
     it = data.find(name);
     if (it == data.end())
@@ -34,7 +34,7 @@ string Database::put_command(Message message)
     {
         it->second.push_back(pair<string,string>(subject,email));
     }
-    // unlock mutex
+    // unlock semaphore
     sem_post(&lock);
     return "OK\n";
 }
@@ -44,7 +44,7 @@ string Database::list_command(Message message)
 	string name = message.params[0];
     map<string,vector<pair<string, string> > >::iterator it;
     
-    // lock mutex
+    // lock semaphore
     sem_wait(&lock);
     it = data.find(name);
     string response;
@@ -62,7 +62,7 @@ string Database::list_command(Message message)
         }
         response = ss.str();
     }
-    // unlock mutex
+    // unlock semaphore
     sem_post(&lock);
     return response;
 }
@@ -74,7 +74,7 @@ string Database::get_command(Message message)
     int index = atoi(index_string.c_str()) - 1;
     map<string,vector<pair<string, string> > >::iterator it;
     
-    // lock mutex
+    // lock semaphore
     sem_wait(&lock);
     it = data.find(name);
     string response;
@@ -99,17 +99,17 @@ string Database::get_command(Message message)
 
         response = ss.str();
     }
-    // unlock mutex
+    // unlock semaphore
     sem_post(&lock);
     return response;
 }
 
 string Database::reset_command()
 {
-	// lock mutex
+	// lock semaphore
 	sem_wait(&lock);
 	data.clear();
-	// unlock mutex
+	// unlock semaphore
 	sem_post(&lock);
 	return "OK\n";
 }

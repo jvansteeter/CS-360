@@ -2,7 +2,6 @@
 
 ServerFacade::ServerFacade(Database* da, bool d)
 {
-	//client = c;
 	data = da;
 	debug = d;
 }
@@ -12,68 +11,59 @@ ServerFacade::~ServerFacade()
 }
 
 bool
-ServerFacade::handle(int client) {
-    // loop to handle all requests
-    //while (1) 
-    for(unsigned int i = 0; i < 1; i++)
+ServerFacade::handle(int client) 
+{
+    if (debug)
+        cout << "SERVER:: handle()" << endl;
+    // get a request
+    string request = get_request(client);
+    // break if client is done or an error occurred
+    if (request.empty())
     {
-        if (debug)
-            cout << "SERVER:: handle()" << endl;
-        // get a request
-        string request = get_request(client);
-        // break if client is done or an error occurred
-        if (request.empty())
-        {
-            close(client);
-            return false;
-            //break;
-        }
+        close(client);
+        return false;
+    }
 
-        if (debug)
-            cout << request << endl;
+    if (debug)
+        cout << request << endl;
 
-        Message message = parse_request(request);
-        if (debug)
-            cout << "SERVER:: finished parsing" << endl;
+    Message message = parse_request(request);
+    if (debug)
+        cout << "SERVER:: finished parsing" << endl;
 
-        // if more of the message is needed
-        if (message.needed)
-            get_value(client, message);
-        //else
-            //message.cache.append("\n");
+    // if more of the message is needed
+    if (message.needed)
+        get_value(client, message);
 
-        // run the commands
-        bool success;
-        if (message.command == "put")
-        {
-            success = send_response(client,put_command(message));
-        }
-        else if(message.command == "list")
-        {
-            success = send_response(client,list_command(message));
-        }
-        else if(message.command == "get")
-        {
-            success = send_response(client,get_command(message));
-        }
-        else if(message.command == "reset")
-        {
-            success = send_response(client,reset_command(message));
-        }
-        else
-        {
-            success = send_response(client,"error invalid command\n");
-        }
-        // break if an error occurred
-        if (not success)
-        {
-            close(client);
-            return false;
-            //break;     
-        }
-   }
+    // run the commands
+    bool success;
+    if (message.command == "put")
+    {
+        success = send_response(client,put_command(message));
+    }
+    else if(message.command == "list")
+    {
+        success = send_response(client,list_command(message));
+    }
+    else if(message.command == "get")
+    {
+        success = send_response(client,get_command(message));
+    }
+    else if(message.command == "reset")
+    {
+        success = send_response(client,reset_command(message));
+    }
+    else
+    {
+        success = send_response(client,"error invalid command\n");
+    }
+    // break if an error occurred
+    if (not success)
+    {
+        close(client);
+        return false;     
+    }
    return true;
-    //close(client);
 }
 
 string
@@ -82,34 +72,30 @@ ServerFacade::get_request(int client)
     string request = "";
     int buflen_ = 1024;
     char* buf_ = new char[buflen_+1];
-    // read until we get a newline
-    //while (request.find("\n") == string::npos) 
-    {
-        if (debug)
-            cout << "SERVER:: get_request()" << endl;
-        int nread = recv(client,buf_,1024,0);
-        if (nread < 0) {
-            if (errno == EINTR)
-            {
-                // the socket call was interrupted -- try again
-                //continue;
-            }
-            else
-            {
-                // an error occurred, so break out
-                delete buf_;
-                return "";
-            }
-        } 
-        else if (nread == 0) {
-            // the socket is closed
+    
+    if (debug)
+        cout << "SERVER:: get_request()" << endl;
+    int nread = recv(client,buf_,1024,0);
+    if (nread < 0) {
+        if (errno == EINTR)
+        {
+            // the socket call was interrupted -- try again
+        }
+        else
+        {
+            // an error occurred, so break out
             delete buf_;
             return "";
         }
-        // be sure to use append in case we have binary data
-        request.append(buf_,nread);
+    } 
+    else if (nread == 0) {
+        // the socket is closed
+        delete buf_;
+        return "";
     }
-    // a better server would cut off anything after the newline and
+    // be sure to use append in case we have binary data
+    request.append(buf_,nread);
+
     // save it in a cache
     delete buf_;
     return request;
@@ -160,8 +146,6 @@ ServerFacade::parse_request(string request)
         while(!iss.eof())
         {
             string arg, command;
-            // start with the error case, if it is a good case error will get overwriten
-            //message.command = "error";
             getline(iss, arg, '\n');
             istringstream arg_line(arg);
             getline(arg_line, command, ' ');
@@ -192,7 +176,7 @@ ServerFacade::parse_request(string request)
                     getline(iss,line);
                     if(debug)
                         cout << "SERVER:: parsing> " << line << endl;
-                    ss << line;// << "\n";
+                    ss << line;
                 }
                 string remainder = ss.str();
 
