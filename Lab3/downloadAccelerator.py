@@ -11,7 +11,6 @@ class Shared:
         self.index = 0
         self.data = {}
         self.sem = threading.Semaphore()
-        self.lock = threading.Lock()
         self.url = url
         header = {'Accept-Encoding':'identity'}
         self.head = requests.head(url, headers=header)
