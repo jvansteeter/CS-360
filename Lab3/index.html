@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>CS 360 Internet Programming</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/static/img/favicon.ico">
+    <link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="http://cdn.jsdelivr.net/foundation/5.3.3/css/normalize.css">
+    <link rel="stylesheet" href="http://cdn.jsdelivr.net/foundation/5.3.3/css/foundation.min.css">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/foundicons/3.0.0/foundation-icons.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
+    <link href="/static/css/app.css" rel="stylesheet">
+  </head>
+  <body>
+    <div id="header">
+      <div class="row">
+	<div class="course small-12 large-7 columns">
+	  <a href=/>CS 360 Internet Programming
+</a>
+	</div>
+	<div class="university small-12 large-5 columns">
+	  <a class="borderright" href="http://byu.edu">BYU</a><a href="http://cs.byu.edu">Computer Science</a>
+	</div>
+      </div>
+    </div>
+    
+    <div class="contain-to-grid no-print">
+      <nav class="top-bar" data-topbar>
+	<ul class="title-area">
+	  <li><h1>
+Fall 2015
+</h1>
+	  </li>
+	  <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+	</ul>
+	<section class="top-bar-section">
+
+	  <!-- Left Nav Section -->
+	  <ul class="left">
+	    
+
+
+
+
+
+
+
+<li class="active">
+<a href=/fall-2015/ >Syllabus</a></li>
+
+
+
+
+<li >
+<a href=/fall-2015/schedule >Schedule</a></li>
+<li class="has-dropdown ">
+  <a href="#">Homework</a>
+  <ul class="dropdown">
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/homework/linux-command-line >Linux Command Line</a></li>
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/homework/make >Make</a></li>
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/homework/git >Git</a></li>
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/homework/socket-io >Socket I/O</a></li>
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/homework/mutexes-and-condition-variables >Mutexes and Condition Variables</a></li>
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/homework/semaphores >Semaphores</a></li>
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/homework/introduction-to-python >Introduction to Python</a></li>
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/homework/python-threading >Python Threading</a></li>
+  </ul>
+</li>
+<li class="has-dropdown ">
+  <a href="#">Labs</a>
+  <ul class="dropdown">
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/labs/messaging-service >Messaging Service</a></li>
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/labs/threaded-messaging-service >Threaded Messaging Service</a></li>
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/labs/download-accelerator >Download Accelerator</a></li>
+  </ul>
+</li>
+<li class="has-dropdown ">
+  <a href="#">Help</a>
+  <ul class="dropdown">
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/help/instructor >Instructor and TAs</a></li>
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/help/officehours >Office Hours</a></li>
+    
+
+
+
+
+
+<li >
+<a href=/fall-2015/help/code >Sample Code</a></li>
+    <li><a href="https://piazza.com/byu/fall2015/cs360" target="_blank">Discussion <i class="fi-arrow-right"></i></a></li>
+  </ul>
+</li>
+</ul>
+
+
+	  </ul>
+	</section>
+      </nav>
+    </div>
+    
+
+    <div id="page" class="text">
+      <div class="row">
+	
+
+<h1>Syllabus</h1>
+
+<p>This course covers Internet application programming, including
+client-server and web applications. At the end of this course,
+students should be able to:</p>
+
+<ul>
+<li><p>Use the BSD socket API to develop network applications.</p></li>
+<li><p>Understand and use concurrent programming to develop a thread-safe
+server, including both thread pool and event-driven architectures.</p></li>
+<li><p>Use experiments to conduct an in-depth performance evaluation of
+network software to better understand design tradeoffs and operating
+system overhead.</p></li>
+<li><p>Use a common web application framework to build a web database
+application, using either a relational or no-SQL database.</p></li>
+<li><p>Understand security issues for network software and be able to write
+code that is secure against common attacks.</p></li>
+<li><p>Have the confidence and ability to quickly learn a new language and
+libraries.</p></li>
+</ul>
+
+<h2>Textbooks and Online Resources</h2>
+
+<p>You do not need to buy a textbook for this class. Instead, you should
+be able to learn everything from lecture notes and online
+materials.</p>
+
+<p>We will use the languages that are most popular for networking: C/C++,
+Python, and Javascript. The course is designed to require you to
+quickly adapt to a new language and conventions, using available
+online materials, much like computer scientists do in practice. You
+should be ready for this and plan ahead as appropriate.</p>
+
+<p>Below are some sources I use for the material in this class:</p>
+
+<h3>Socket Programming</h3>
+
+<ul>
+<li><p><a href="http://www.amazon.com/Linux-Programming-Interface-System-Handbook/dp/1593272200/">The Linux Programming Interface</a></p>
+
+<p>A great book that explains everything you need to know about
+programming with the Linux operating system. This includes file
+I/O, threads, sockets, signals, and much more.</p></li>
+<li><p><a href="http://www.amazon.com/Unix-Network-Programming-Volume-Networking/dp/0131411551">Unix Network Programming, Volume 1: The Sockets Network API, 3rd Edition</a></p>
+
+<p>This has been the definitive reference for network programming for
+more than a decade, and has been recently updated. In addition to
+sockets, this book covers threads, concurrent architectures, and
+many network programming details.</p></li>
+</ul>
+
+<h3>C/C++ Programming</h3>
+
+<p>We will use C/C++ for some labs, so it will be helpful to have a good
+reference.  I strongly recommend using an online tutorial or buying
+a book if you are not confident in your C/C++ coding.</p>
+
+<ul>
+<li><p><a href="http://www.learncpp.com/">LearnCpp</a></p></li>
+<li><p><a href="http://www.amazon.com/Primer-5th-Stanley-B-Lippman/dp/0321714113/">C++ Primer</a></p></li>
+<li><p><a href="http://www.amazon.com/dp/0321958314/">A Tour of C++</a></p></li>
+</ul>
+
+<h3>Python</h3>
+
+<p>We will use Python for some labs and for processing and graphing data.
+I list some free online references below, plus a book in case you want
+one.</p>
+
+<ul>
+<li><p><a href="http://www.codecademy.com/tracks/python">Codecademy Python course</a></p></li>
+<li><p><a href="http://www.learnpython.org/">Learn Python Interactive Tutorial</a></p></li>
+<li><p><a href="http://www.greenteapress.com/thinkpython/">Think Python: How to Think Like a Computer Scientist</a></p></li>
+<li><p><a href="http://www.amazon.com/Learning-Python-Edition-Mark-Lutz/dp/1449355730/">Learning Python, 5th Edition</a></p></li>
+</ul>
+
+<p>I also suggest that you become familiar with the official <a href="http://www.python.org/doc/">Python documentation</a>.</p>
+
+<h3>Javascript</h3>
+
+<p>We will use Javascript to write a web application, with
+<a href="https://nodejs.org/">node.js</a> and <a href="http://expressjs.com/">Express</a> on
+the back end, and <a href="http://facebook.github.io/react/">React</a> on the
+front end.</p>
+
+<p>To learn HTML and CSS, see:</p>
+
+<ul>
+<li><p><a href="http://www.codecademy.com/tracks/web">Codecademy HTML and CSS Tutorial</a></p></li>
+<li><p><a href="http://www.htmldog.com/guides/css/">CSS Tutorial</a></p></li>
+<li><p><a href="http://learnlayout.com/">Learn CSS Layout</a></p></li>
+</ul>
+
+<p>To learn Javascript, use some of the following resources:</p>
+
+<ul>
+<li><p><a href="https://www.codecademy.com/en/tracks/javascript">Codecademy Javascript course</a></p></li>
+<li><p><a href="https://www.khanacademy.org/computing/computer-programming/programming">Kahn Academy Javascript course</a></p></li>
+</ul>
+
+<h2>Computing Environment</h2>
+
+<p>We will be using a Linux environment for this class. You can use the
+Linux labs, use a live USB to boot into Linux, or setup a virtual
+machine running Linux. We will be using Python 2.7, along with various
+packages such as matplotlib and LaTeX.  You are strongly encouraged to
+become familiar with Linux, its software, and the command-line
+environment. Being fluent in multiple computing environments is an
+important part of a CS education.</p>
+
+<p>You may, if you are talented and persistent, figure out how to setup a
+MacOS machine with the required software. I cannot provide help with
+this, and your code will be expected to run on a Linux machine when
+you submit it. There are a number of areas, particularly for
+synchronization, where the libraries are different for MacOS and
+Linux. Be sure to test your code in a Linux environment.</p>
+
+<h2>Code Editor</h2>
+
+<p>I personally use emacs and <a href="http://www.sublimetext.com/">Sublime</a>, and
+I know many others use vim. You may also want to check out
+<a href="http://brackets.io/">Brackets</a> and <a href="http://brackets.io/">Atom</a>. I
+highly recommend a code editor and <em>not</em> an IDE, so that you learn
+to compile and run code using the command line. This will come in handy
+when you need to do remote system administration.</p>
+
+<h2>Source Control</h2>
+
+<p>Regardless of the computing environment you use, you should become
+familiar with <a href="http://git-scm.com/book">Git</a> and
+<a href="https://github.com/">GitHub</a>.</p>
+
+<p>You should store your code in a <em>private</em> Git
+repository. <a href="http://bitbucket.org">Bitbucket</a> provides free private
+repositories.</p>
+
+<h2>Assignments and Grading Policy</h2>
+
+<p>Attendance and participation in class is expected.</p>
+
+<p>The assignments for this class will consist of homework, labs and
+exams.  Homework will involve short assignments that will be checked
+in class. Grading will be based on a self-assessment of pass/fail.
+<strong>Participation is required for these sessions.</strong></p>
+
+<p>Labs must be written in the assigned language and must compile and run
+on the department&#39;s Linux machines.  Labs will be graded by the TA or
+instructor.  For some labs, the scoring will be based on running your
+code.  In these cases, we will publish a grading sheet before each
+assignment is due, listing the tests we will run and how many points
+each test is worth. Each student will run test cases for themselves
+and for two othre students, roughly one week after each lab is
+due. This will give you an opportunity to see how someone else&#39;s code
+works and to learn from how they have written their code. Scores will
+be assigned by the instructor, taking into account test cases as well
+as a short lab report.</p>
+
+<p>Grading for exams will be on a scale of 0 to 10 for each problem, with
+a final score based on the total possible points.  A score of 10
+indicates your answer is completely correct (A), and a score of 5
+indicates your answer is entirely wrong but you made a reasonable
+effort (E).  Grades in between indicate very good (9), good (8),
+adequate (7), and poor (6). Failure to make a reasonable effort to
+answer a question scores a 0.</p>
+
+<p>Your final grade will be computed by weighting all scores as follows:</p>
+
+<blockquote>
+<p>Homework 10%</p>
+
+<p>Labs 60%</p>
+
+<p>Exams 30%</p>
+</blockquote>
+
+<h2>Late Policy</h2>
+
+<p>Labs are due on the day indicated. To accommodate difficulties in your
+schedule, you can turn in work late, but you will be penalized 10% for
+every 2 days, up to a maximum of 30% off. No late work will be
+accepted after 6 days. Weekends and holidays are counted. No late work
+can be turned in after the last day of classes.</p>
+
+<p>You may avoid late penalties due to a medical excuse by making an
+arrangement in advance with the instructor. I will also happily make
+exceptions for those with a documented disability.</p>
+
+<h2>Collaboration Policy</h2>
+
+<p>Most assignments for this class must be done individually. You are,
+however, strongly encouraged to discuss solving the homeworks, labs
+and any programming problems you encounter generally. The primary
+requirement is that you must write your own code and should not view
+any other student&#39;s code.  When producing written work, your writing
+must be your own thoughts.  Your use of sources (ideas, quotations,
+paraphrases) must be properly acknowledged and documented.</p>
+
+<p>Group work is permitted only where specified clearly in the
+assignment.  Group work is meant to be done jointly with a team of two
+to five students.  Students in a group should work on problems and
+programs together, and each student should perform a roughly equal
+amount of work.</p>
+
+<h2>Educational Policies</h2>
+
+<h3>Honor Code Standards</h3>
+
+<p>In keeping with the principles of the <a href="http://honorcode.byu.edu/">BYU Honor
+Code</a>, students are expected to be honest
+in all of their academic work.  Academic honesty means, most
+fundamentally, that any work you present as your own must in fact be
+your own work and not that of another. Violations of this principle
+may result in a failing grade in the course and additional
+disciplinary action by the university.</p>
+
+<h3>Policy on Harassment</h3>
+
+<p>Harassment of any kind is inappropriate at BYU. Specifically, BYU&#39;s
+policy against sexual harassment extends not only to employees of the
+university but to students as well. If you encounter sexual
+harassment, gender-based discrimination, or other inappropriate
+behavior, please talk to your professor, contact the Equal Employment
+Office at 422-5895 or 367-5689, or contact the Honor Code Office at
+422-2847.</p>
+
+<h3>Students with Disabilities</h3>
+
+<p>BYU is committed to providing reasonable accommodation to qualified
+persons with disabilities. If you have any disability that may
+adversely affect your success in this course, please contact the
+University Accessibility Center at 422-2767. Services deemed
+appropriate will be coordinated with the student and instructor by
+that office.</p>
+
+      
+
+      </div>
+    </div>
+
+    <div id="footer">
+      <div class="row">
+	<div id="license">
+	  <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a>
+	  <p></p>
+	</div>
+      </div>
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//cdn.jsdelivr.net/foundation/5.3.3/js/foundation.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+      $(document).foundation();
+    </script>
+
+  </body>
+</html>

@@ -3,6 +3,7 @@ import os
 import requests
 import sys
 import threading
+import time
 
 class Shared:
     """ Shared memory """
@@ -14,10 +15,9 @@ class Shared:
         self.url = url
         header = {'Accept-Encoding':'identity'}
         self.head = requests.head(url, headers=header)
+        """if the url does not allow byte ranges raise and exception"""
         if (self.head.headers['Accept-Ranges'] != 'bytes'):
         	raise Exception("Web resourse does not accept byte ranges")
-        print "!!!HEADER INFORMATION!!!" 
-        print self.head.headers
         self.byteSize = int(self.head.headers['Content-Length'])
 
     def getIndex(self):
@@ -40,7 +40,6 @@ class DownThread(threading.Thread):
 
     def run(self):
     	byteRange = "bytes=" + str(self.index * self.chunkSize) + "-" + str((self.index * self.chunkSize) + self.chunkSize - 1)
-    	print "byteRange= " + byteRange
     	header = {'Range': byteRange, 'Accept-Encoding':'identity'}
     	chunk = requests.get(self.url, headers=header)
     	self.data = chunk.content
@@ -52,13 +51,18 @@ class DownloadAccelerator:
     	self.threadNumber = number
 
     def download(self, url):
+    	self.startTime = time.time()
     	self.shared = Shared(url)
-        print "Number of threads: " + str(self.threadNumber) + "\n"
-        print "Url to download: " + url + '\n'
-        print "Total bytes to download: " + str(self.shared.byteSize) + '\n'
-
+       
         """Define how much each thread should get"""
         self.chunkSize = (self.shared.byteSize / self.threadNumber) + 1
+
+        """create the file to download content to"""
+        dir = url.split('/')
+        fileName = dir[len(dir) - 1]
+        if (fileName == ""):
+        	fileName = "index.html"
+        fileWriter = open(fileName, 'wb')
 
         """run and join threads"""
         threads = []
@@ -66,27 +70,14 @@ class DownloadAccelerator:
         	thread = DownThread(self.shared, self.chunkSize)
         	threads.append(thread)
         	thread.start()
-
         for thread in threads:
         	thread.join()
 
-        """create the file to download content to"""
-        dir = url.split('/')
-        print url.split('/')
-        print dir[len(dir) - 1]
-        fileName = dir[len(dir) - 1]
-        if (fileName == ""):
-        	fileName = "index.html"
-        elif (fileName.find(".") == -1):
-        	fileName += ".html"
-        print fileName
-
-
+        """write all the gathered data to the file"""
         for i in range(0, self.threadNumber):
-        	print "---Thread assigned index " + str(i) + " has retrieved " + str(len(self.shared.data[i])) +'---\n'
-        	print self.shared.data[i]
-
-        print "!!!All done!!!" + str(len(threads))
+        	fileWriter.write(self.shared.data[i])
+        fileWriter.close()
+        print url + " " + str(self.threadNumber) + " " + str(self.shared.byteSize) + " " + str(time.time() - self.startTime)
         
 def parse_options():
         parser = argparse.ArgumentParser(prog='DownloadAccelerator', description='Download web resourses using multithreading', add_help=True)
@@ -98,38 +89,3 @@ if __name__ == "__main__":
     args = parse_options()
     d = DownloadAccelerator(args.number)
     d.download(args.url[0])
-
-
-
-    """for i in range(0,args.number):
-        h = Hello(s)
-        h.start()"""
-
-
-
-
-
-"""
-header = ('Range':'bytes=0-100', 'Accept-Encoding':'identity')
-url = "http://cs360.byu.edu/fall-2015"
-chunk = requests.get(url, headers=header)
-print chunk.text"""
-
-"""
-header = request.head(url)
-header['Content-Length']
-"""
-
-
-"""
-header = {'Range':'bytes=0-100', 'Accept-Encoding':'identity'}
-url = 'http://cs360.byu.edu/fall-2015/'
-print "assigned index=" + str(self.index)
-head = requests.head(url)
-print head.status_code
-print head.headers
-print head.text
-chunk = requests.get(url, headers=header)
-print chunk.status_code
-print chunk.headers
-#print chunk.text"""
