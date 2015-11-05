@@ -19,8 +19,7 @@ configParameter = {}
 def parse_config():
     """Function to parse the config file"""
     Debug.dprint("SERVER::parse_config()")
-    fileReader = open("web.config", 'r')
-    #print fileReader.read()
+    fileReader = open("web.conf", 'r')
     for line in fileReader.read().split('\n'):
         items = line.split(' ')
         if items[0] == "host":
@@ -29,13 +28,6 @@ def parse_config():
             configMedia[items[1]] = items[2]
         elif items[0] == "parameter":
             configParameter[items[1]] = items[2]
-    """print "finished parsing"
-    for key in configHost:
-        print key, " : ", configHost[key]
-    for key in configMedia:
-        print key, " : ", configMedia[key]
-    for key in configParameter:
-        print key, " : ", configParameter[key]"""
 
 class Debug:
     """Debug Class"""
@@ -85,29 +77,22 @@ class Poller:
 
             # poll sockets
             try:
-                #startTime = datetime.now()
-                '''for key in self.clients:
-                    cc = self.clients[client]
-                    print "$#!@#$!#@ " + str(cc)
-                    lastEvent = self.mark[cc]#FUCK THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    current = datetime.now()
-                    totalTime = current - lastEvent
-                    if (totalTime.seconds >= configParameter['timeout']):
-                        #self.poller.unregister(fd)
-                        client.close()
-                        del self.clients[client.fileno()]
-                for key in self.mark:
-                    print "!!!!!key= " + str(key) + " mark= " + str(self.mark[key])'''
+                for key in self.clients:
+                    #Debug.dprint("POLLER::run()::key in self.clients= " + str(key))
+                    #print str(self.mark[key])#FUCK THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    lastEvent = self.mark[key]
+                    if lastEvent != 0:
+                        current = datetime.now()
+                        totalTime = current - lastEvent
+                        if (totalTime.seconds >= configParameter['timeout']):
+                            Debug.dprint("POLLER::timeout has occured")
+                            self.poller.unregister(key)
+                            self.clients[key].close()
+                            del self.clients[key]
+                            del self.mark[key]
 
                 fds = self.poller.poll(timeout=0.5)
                 
-
-
-                #endTime = datetime.now()
-                #totalTime = endTime - startTime
-                
-                #print "!!!" + str(len(fds))
-                #print "!!!!!!start: " + str(startTime) + " end: " + str(endTime) + " total: " + str(totalTime.seconds)
             except:
                 return
             for (fd,event) in fds:
@@ -117,11 +102,11 @@ class Poller:
                     continue
                 # handle the server socket
                 if fd == self.server.fileno():
+                    Debug.dprint("POLLER::handling the server socket")
                     self.handleServer()
                     continue
                 # handle client socket
                 result = self.handleClient(fd)
-                #print "fd= " + str(fd) + " event= " +str(event)
 
     def handleError(self,fd):
         Debug.dprint("POLLER::handleError")
@@ -156,6 +141,7 @@ class Poller:
             # set client socket to be non blocking
             client.setblocking(0)
             self.clients[client.fileno()] = client
+            self.mark[client.fileno()] = 0
             self.poller.register(client.fileno(),self.pollmask)
 
     def handleClient(self,fd):
@@ -173,13 +159,7 @@ class Poller:
 
         if data:
             response = self.handleRequest(data)
-            self.clients[fd].sendall(response)     #this is the line of code that is breaking my whole system.  The send() function is not sending all the data the socket.
-            self.clients[fd].close()
-            '''self.clients[fd].send(response)
-            self.clients[fd].send(response)
-            print "!!!count " + str(count)
-            self.poller.unregister(fd)
-            self.clients[fd].close()'''
+            self.clients[fd].send(response)     #this is the line of code that is breaking my whole system.  The send() function is not sending all the data the socket.
         else:
             self.poller.unregister(fd)
             self.clients[fd].close()
@@ -206,10 +186,13 @@ class Poller:
             return self.response501()
 
         """Determine Host"""
-        Debug.dprint("POLLER::Host= " + headers['Host'])
-        RootDir = ""
-        if headers['Host'].find("localhost") != -1:
-            RootDir = configHost['localhost']
+        if headers.has_key('Host'):
+            Debug.dprint("POLLER::Host= " + headers['Host'])
+            RootDir = ""
+            if headers['Host'].find("localhost") != -1 and configHost.has_key('localhost'):
+                RootDir = configHost['localhost']
+            else:
+                RootDir = configHost['default']
         else:
             RootDir = configHost['default']
 
@@ -217,6 +200,7 @@ class Poller:
         if path == "/":
             path = "/index.html"
         try:
+            dataType = ""
             if path.find('.') != -1:
                 pathObjects = path.split('.')
                 dataType = str(pathObjects[len(pathObjects) - 1])
@@ -227,9 +211,16 @@ class Poller:
                 self.headers['Content-Type'] = "text/plain"
 
             fileName = RootDir + path
+            """See if the requested file actually exists"""
+            if not os.path.isfile(fileName):
+                return self.response404()
+            
+            """Check if we have permissions to open the file"""
+            if not os.access(fileName, os.R_OK):
+                return self.response403()
+
             fileReader = open(fileName, 'rb')
             body = fileReader.read()
-            print "!!! body length " + str(len(body)) 
             self.headers['Content-Length'] = os.stat(fileName).st_size
             self.headers['Last-Modified'] = strftime("%a, %d %b %Y %H:%M:%S GMT", gmtime(os.stat(fileName).st_mtime))
             response = "HTTP/1.1 200 OK\r\n"
@@ -245,7 +236,7 @@ class Poller:
             response += str(body)
             return response
         except IOError:
-            return self.response404()
+            return self.response500()
 
 
     def response400(self):
@@ -265,7 +256,7 @@ class Poller:
         Debug.dprint("POLLER::response403()")
         body = "<h1>403 Forbidden</h1>"
         self.headers['Content-Length'] = len(body)
-        self.headers['Content-type'] = "text/html"
+        self.headers['Content-Type'] = "text/html"
         response = "HTTP/1.1 403 Forbidden\r\n"
         for key in self.headers:
             response += str(key) + ": " + str(self.headers[key]) + "\r\n"
@@ -277,7 +268,7 @@ class Poller:
         Debug.dprint("POLLER::response404()")
         body = "<h1>404 Not Found</h1>"
         self.headers['Content-Length'] = len(body)
-        self.headers['Content-type'] = "text/html"
+        self.headers['Content-Type'] = "text/html"
         response = "HTTP/1.1 404 Not Found\r\n"
         for key in self.headers:
             response += str(key) + ": " + str(self.headers[key]) + "\r\n"
@@ -289,7 +280,7 @@ class Poller:
         Debug.dprint("POLLER::response500()")
         body = "<h1>500 Internal Server Error</h1>"
         self.headers['Content-Length'] = len(body)
-        self.headers['Content-type'] = "text/html"
+        self.headers['Content-Type'] = "text/html"
         response = "HTTP/1.1 500 Internal Server Error\r\n"
         for key in self.headers:
             response += str(key) + ": " + str(self.headers[key]) + "\r\n"
@@ -301,7 +292,7 @@ class Poller:
         Debug.dprint("POLLER::response501()")
         body = "<h1>501 Not Implemented</h1>"
         self.headers['Content-Length'] = len(body)
-        self.headers['Content-type'] = "text/html"
+        self.headers['Content-Type'] = "text/html"
         response = "HTTP/1.1 501 Not Implemented\r\n"
         for key in self.headers:
             response += str(key) + ": " + str(self.headers[key]) + "\r\n"
