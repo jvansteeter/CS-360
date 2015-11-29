@@ -1,53 +1,87 @@
 var express = require('express');
 var router = express.Router();
+var mongoose = require('mongoose');
+var User = mongoose.model('User');
+var jwt = require('express-jwt');
+var passport = require('passport');
+
+var SECRET = '\x1f\x1e1\x8a\x8djO\x9e\xe4\xcb\x9d`\x13\x02\xfb+\xbb\x89q"F\x8a\xe0a';
+var auth = jwt({secret: SECRET, userProperty: 'payload'});
 
 //
 // API
 //
 
 // register a user
-router.post('/api/users/register', function (req, res) {
-    // find or create the user with the given username
-    User.findOrCreate({username: req.body.username}, function(err, user, created) {
-        if (created) {
+router.post('/users/register', function (req, res) 
+{
+	console.log("attempting to register a new user");
+    
+    if(!req.body.username || !req.body.password)
+	{
+		return res.status(400).json({ message: 'Please fill out all fields' });
+	}
+
+	// find or create the user with the given username
+    User.findOrCreate({username: req.body.username}, function(err, user, created) 
+    {
+        if (created) 
+        {
             // if this username is not taken, then create a user record
             user.name = req.body.name;
             user.set_password(req.body.password);
-            user.save(function(err) {
-		if (err) {
+            user.save(function(err) 
+            {
+				if (err) 
+				{
+				    res.sendStatus("403");
+				    return;
+				}
+		        // create a token
+				var token = User.generateToken(user.username);
+		        // return value is JSON containing the user's name and token
+		        res.json({name: user.name, token: token});
+		    });
+		} 
+		else 
+		{
+		    // return an error if the username is taken
 		    res.sendStatus("403");
-		    return;
 		}
-                // create a token
-		var token = User.generateToken(user.username);
-                // return value is JSON containing the user's name and token
-                res.json({name: user.name, token: token});
-            });
-        } else {
-            // return an error if the username is taken
-            res.sendStatus("403");
-        }
     });
 });
 
 // login a user
-router.post('/api/users/login', function (req, res) {
-    // find the user with the given username
-    User.findOne({username: req.body.username}, function(err,user) {
-	if (err) {
-	    res.sendStatus(403);
-	    return;
+router.post('/users/login', function (req, res) 
+{
+	console.log("attempting to log in");
+
+	if(!req.body.username || !req.body.password)
+	{
+		return res.status(400).json({ message: 'Please fill out all fields' });
 	}
-        // validate the user exists and the password is correct
-        if (user && user.checkPassword(req.body.password)) {
-            // create a token
+
+	passport.authenticate('local', function(err, user, info)
+	{
+		console.log("In passport");
+
+		if(err)
+		{
+			res.sendStatus(403);
+			return;
+		}
+		if(user)
+		{
+			// create a token
             var token = User.generateToken(user.username);
             // return value is JSON containing user's name and token
             res.json({name: user.name, token: token});
-        } else {
-            res.sendStatus(403);
-        }
-    });
+		}
+		else
+		{
+			res.status(401).json(info);
+		}
+	});
 });
 
 // get all items for the user

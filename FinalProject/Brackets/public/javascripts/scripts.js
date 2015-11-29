@@ -182,11 +182,16 @@ blogApp.controller('loginControl', function($scope, $window, $http, Credentials)
         $scope.loginInfo = "Password is blank";
         return;
       }
-      var url = "api/users/login" + $scope.usernameInput + "&p=" + $scope.passwordInput;
+
+      var url = "api/users/login";
       console.log(url);
-      $http.get(url).success(function(data)
+      var data =  {
+                  "username" : $scope.usernameInput,
+                  "password" : $scope.passwordInput
+                };
+      $http.post(url, data).success(function(data)
       {
-        // console.log(data);
+        console.log(data);
         if(data.length === 0)
         {
           $scope.loginInfo = "Server Error";
@@ -218,8 +223,13 @@ blogApp.controller('loginControl', function($scope, $window, $http, Credentials)
         $scope.loginInfo = "Password is blank";
         return;
       }
-      var url = "createUser?u=" + $scope.usernameInput + "&p=" + $scope.passwordInput;
-      $http.get(url).success(function(data)
+
+      var url = "api/users/register";
+      var data = {
+          "username" : $scope.usernameInput,
+          "password" : $scope.passwordInput
+      };
+      $http.post(url, data).success(function(data)
       {
           if(data === "OK")
           {
