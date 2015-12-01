@@ -28,8 +28,8 @@ passport.use(new LocalStrategy(function (username, password, done)
 
 passport.use(new FacebookStrategy(
 {
-    clientID: FACEBOOK_APP_ID,
-    clientSecret: FACEBOOK_APP_SECRET,
+    clientID: 576848805800238,
+    clientSecret: ad581e993a40c8e36ec050c1e1a3c077,
     callbackURL: "http://hearts:3000/index.html"
 },
 function(accessToken, refreshToken, profile, done) 
