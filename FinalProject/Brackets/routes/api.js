@@ -38,7 +38,7 @@ router.post('/users/register', function (req, res)
 				    return;
 				}
 		        // create a token
-				var token = User.generateToken(user.username);
+				var token = User.generateToken(user.name);
 		        // return value is JSON containing the user's name and token
 		        res.json({name: user.name, token: token});
 		    });
@@ -52,36 +52,29 @@ router.post('/users/register', function (req, res)
 });
 
 // login a user
-router.post('/users/login', function (req, res) 
+router.post('/users/login', function(req, res, next)
 {
-	console.log("attempting to log in");
-
 	if(!req.body.username || !req.body.password)
 	{
-		return res.status(400).json({ message: 'Please fill out all fields' });
+		return res.status(400).json({message: 'Please fill out all fields'});
 	}
 
 	passport.authenticate('local', function(err, user, info)
 	{
-		console.log("In passport");
+	if(err)
+	{ 
+		return next(err); 
+	}
 
-		if(err)
-		{
-			res.sendStatus(403);
-			return;
-		}
-		if(user)
-		{
-			// create a token
-            var token = User.generateToken(user.username);
-            // return value is JSON containing user's name and token
-            res.json({name: user.name, token: token});
-		}
-		else
-		{
-			res.status(401).json(info);
-		}
-	});
+	if(user)
+	{
+		return res.json({token: User.generateToken(user.username)});
+	} 
+	else 
+	{
+		return res.status(401).json(info);
+	}
+	})(req, res, next);
 });
 
 // get all items for the user

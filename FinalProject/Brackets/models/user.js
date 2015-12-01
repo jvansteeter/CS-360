@@ -30,7 +30,7 @@ userSchema.methods.checkPassword = function(password)
 };
 
 // Generate a token for a client
-userSchema.statics.generateToken = function(username) 
+userSchema.statics.generateToken = function(user) 
 {
 	var today = new Date();
 	var exp = new Date(today);
@@ -38,7 +38,7 @@ userSchema.statics.generateToken = function(username)
 
     return jwt.sign(
     { 
-    	username: username,
+    	username: user,
     	exp: parseInt(exp.getTime() / 1000) 
     }, SECRET);
 };
