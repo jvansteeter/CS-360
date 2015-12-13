@@ -77,6 +77,8 @@ router.post('/users/login', function(req, res, next)
 	})(req, res, next);
 });
 
+
+
 // get all items for the user
 router.get('/api/items', function (req,res) {
     // validate the supplied token
